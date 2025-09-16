@@ -1,349 +1,276 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
+import { Search, Loader2, Check, X, ExternalLink, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
-import { Search, Check, X, Clock, ExternalLink, AlertCircle } from 'lucide-react'
-// Simple debounce utility
-function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T {
-  let timeout: NodeJS.Timeout
-  return ((...args: any[]) => {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => func(...args), wait)
-  }) as T
-}
-
-interface PlatformResult {
-  platform: string
-  username: string
-  available: boolean
-  url: string
-  category: string
-  status: 'checking' | 'available' | 'taken' | 'error'
-  responseTime?: number
-}
 
 interface SearchResult {
-  username: string
-  results: PlatformResult[]
-  totalChecked: number
-  available: number
-  taken: number
-  errors: number
+  url: string
+  source: string
+  isExist: boolean
+  category?: string
 }
 
-const platformCategories = {
-  'Social Media': ['Twitter', 'Instagram', 'Facebook', 'LinkedIn', 'TikTok', 'Snapchat', 'Pinterest', 'YouTube'],
-  'Development': ['GitHub', 'GitLab', 'Stack Overflow', 'CodePen', 'npm', 'Docker Hub', 'PyPI'],
-  'Design': ['Dribbble', 'Behance', 'Figma Community', 'DeviantArt', 'Unsplash', 'Adobe Portfolio'],
-  'Gaming': ['Steam', 'Twitch', 'Discord', 'Xbox Live', 'PlayStation Network', 'Epic Games'],
-  'Professional': ['AngelList', 'Crunchbase', 'Medium', 'Substack', 'Patreon', 'Ko-fi'],
-  'Domains': ['.com', '.net', '.org', '.io', '.co', '.app', '.dev', '.me'],
+interface ApiResponse {
+  username: string
+  results: SearchResult[]
+  categorizedResults: Record<string, SearchResult[]>
+  stats: {
+    totalChecked: number
+    totalAvailable: number
+    totalTaken: number
+    totalSites: number
+  }
+  apiError: string | null
 }
 
 export default function SearchInterface() {
   const [username, setUsername] = useState('')
-  const [isSearching, setIsSearching] = useState(false)
-  const [searchResult, setSearchResult] = useState<SearchResult | null>(null)
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(Object.keys(platformCategories))
-  const [showFilters, setShowFilters] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [results, setResults] = useState<ApiResponse | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
 
-  // Debounced search function
-  const debouncedSearch = useCallback(
-    debounce(async (searchUsername: string) => {
-      if (searchUsername.length < 2) return
+  const handleSearch = useCallback(async () => {
+    if (!username.trim()) {
+      setError('Please enter a username')
+      return
+    }
 
-      setIsSearching(true)
-      
-      // Simulate API call
-      const mockResults: PlatformResult[] = []
-      
-      selectedCategories.forEach(category => {
-        platformCategories[category as keyof typeof platformCategories].forEach(platform => {
-          const available = Math.random() > 0.3 // 70% chance of being available
-          const responseTime = Math.floor(Math.random() * 2000) + 100
-          
-          mockResults.push({
-            platform,
-            username: searchUsername,
-            available,
-            url: `https://${platform.toLowerCase().replace(' ', '')}.com/${searchUsername}`,
-            category,
-            status: available ? 'available' : 'taken',
-            responseTime,
-          })
-        })
+    if (username.length < 2 || username.length > 50) {
+      setError('Username must be between 2 and 50 characters')
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+    setResults(null)
+
+    try {
+      const response = await fetch('/api/check', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          username: username.trim(),
+          rescan: false // 使用缓存结果以提高速度
+        }),
       })
 
-      // Simulate gradual loading
-      setSearchResult({
-        username: searchUsername,
-        results: [],
-        totalChecked: 0,
-        available: 0,
-        taken: 0,
-        errors: 0,
-      })
-
-      for (let i = 0; i < mockResults.length; i++) {
-        await new Promise(resolve => setTimeout(resolve, Math.random() * 100 + 50))
-        
-        setSearchResult(prev => {
-          if (!prev) return null
-          
-          const newResults = [...prev.results, mockResults[i]]
-          const available = newResults.filter(r => r.available).length
-          const taken = newResults.filter(r => !r.available && r.status === 'taken').length
-          const errors = newResults.filter(r => r.status === 'error').length
-          
-          return {
-            ...prev,
-            results: newResults,
-            totalChecked: newResults.length,
-            available,
-            taken,
-            errors,
-          }
-        })
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to check username')
       }
 
-      setIsSearching(false)
-    }, 500),
-    [selectedCategories]
-  )
+      const data: ApiResponse = await response.json()
+      setResults(data)
 
-  // Handle username input change
-  useEffect(() => {
-    if (username.trim()) {
-      debouncedSearch(username.trim())
-    } else {
-      setSearchResult(null)
-      setIsSearching(false)
+      if (data.apiError) {
+        setError(`Warning: ${data.apiError}`)
+      }
+    } catch (err) {
+      console.error('Search error:', err)
+      setError(err instanceof Error ? err.message : 'An error occurred while searching')
+    } finally {
+      setLoading(false)
     }
-  }, [username, debouncedSearch])
+  }, [username])
 
-  const handleCategoryToggle = (category: string) => {
-    setSelectedCategories(prev =>
-      prev.includes(category)
-        ? prev.filter(c => c !== category)
-        : [...prev, category]
-    )
-  }
-
-  const getStatusIcon = (result: PlatformResult) => {
-    switch (result.status) {
-      case 'checking':
-        return <Clock className="h-4 w-4 text-gray-400 animate-spin" />
-      case 'available':
-        return <Check className="h-4 w-4 text-green-500" />
-      case 'taken':
-        return <X className="h-4 w-4 text-red-500" />
-      case 'error':
-        return <AlertCircle className="h-4 w-4 text-orange-500" />
-      default:
-        return null
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !loading) {
+      handleSearch()
     }
   }
 
-  const getStatusColor = (result: PlatformResult) => {
-    switch (result.status) {
-      case 'available':
-        return 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950'
-      case 'taken':
-        return 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950'
-      case 'error':
-        return 'border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950'
-      default:
-        return 'border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800'
+  const getFilteredResults = () => {
+    if (!results) return []
+    
+    if (selectedCategory === 'all') {
+      return results.results
     }
+    
+    return results.categorizedResults[selectedCategory] || []
+  }
+
+  const getCategories = () => {
+    if (!results?.categorizedResults) return []
+    return Object.keys(results.categorizedResults).sort()
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6">
-      {/* Search Input */}
-      <div className="relative">
-        <div className="flex items-center space-x-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <Input
-              type="text"
-              placeholder="Enter username to check availability..."
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="pl-10 pr-4 py-3 text-lg h-12"
-              autoFocus
-            />
-          </div>
-          <Button
-            variant="outline"
-            onClick={() => setShowFilters(!showFilters)}
-            className="h-12 px-4"
-          >
-            Filters
-          </Button>
+    <div className="w-full max-w-6xl mx-auto space-y-6">
+      {/* Search Bar */}
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+          <Input
+            type="text"
+            placeholder="Enter username to check across 1500+ platforms..."
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            onKeyPress={handleKeyPress}
+            className="pl-10 pr-4 py-3 text-lg"
+            disabled={loading}
+          />
         </div>
-        
-        {/* Real-time validation */}
-        {username && (
-          <div className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-            {username.length < 3 && (
-              <span className="text-orange-600">Username should be at least 3 characters long</span>
-            )}
-            {username.length >= 3 && !/^[a-zA-Z0-9_.-]+$/.test(username) && (
-              <span className="text-red-600">Username contains invalid characters</span>
-            )}
-            {username.length >= 3 && /^[a-zA-Z0-9_.-]+$/.test(username) && (
-              <span className="text-green-600">Valid username format</span>
-            )}
-          </div>
-        )}
+        <Button 
+          onClick={handleSearch} 
+          disabled={loading || !username.trim()}
+          size="lg"
+          className="px-8"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              Checking...
+            </>
+          ) : (
+            <>
+              <Search className="mr-2 h-5 w-5" />
+              Search
+            </>
+          )}
+        </Button>
       </div>
 
-      {/* Category Filters */}
-      {showFilters && (
-        <Card className="p-4">
-          <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
-            Select categories to check:
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {Object.keys(platformCategories).map((category) => (
-              <button
-                key={category}
-                onClick={() => handleCategoryToggle(category)}
-                className={`px-3 py-1 text-sm rounded-full border transition-colors ${
-                  selectedCategories.includes(category)
-                    ? 'bg-primary text-white border-primary'
-                    : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700'
-                }`}
-              >
-                {category} ({platformCategories[category as keyof typeof platformCategories].length})
-              </button>
-            ))}
-          </div>
-        </Card>
-      )}
-
-      {/* Search Progress */}
-      {isSearching && searchResult && (
-        <Card className="p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-medium text-gray-900 dark:text-white">
-              Checking availability for "{searchResult.username}"...
-            </h3>
-            <span className="text-sm text-gray-600 dark:text-gray-300">
-              {searchResult.totalChecked} / {selectedCategories.reduce((acc, cat) => acc + platformCategories[cat as keyof typeof platformCategories].length, 0)} checked
-            </span>
-          </div>
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-            <div 
-              className="bg-primary h-2 rounded-full transition-all duration-300"
-              style={{ 
-                width: `${(searchResult.totalChecked / selectedCategories.reduce((acc, cat) => acc + platformCategories[cat as keyof typeof platformCategories].length, 0)) * 100}%` 
-              }}
-            />
-          </div>
-        </Card>
-      )}
-
-      {/* Search Results Summary */}
-      {searchResult && searchResult.totalChecked > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="p-4 text-center">
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {searchResult.totalChecked}
-            </div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">Total Checked</div>
-          </Card>
-          <Card className="p-4 text-center">
-            <div className="text-2xl font-bold text-green-600">
-              {searchResult.available}
-            </div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">Available</div>
-          </Card>
-          <Card className="p-4 text-center">
-            <div className="text-2xl font-bold text-red-600">
-              {searchResult.taken}
-            </div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">Taken</div>
-          </Card>
-          <Card className="p-4 text-center">
-            <div className="text-2xl font-bold text-orange-600">
-              {searchResult.errors}
-            </div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">Errors</div>
-          </Card>
+      {/* Error Message */}
+      {error && (
+        <div className="flex items-center gap-2 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400">
+          <AlertCircle className="h-5 w-5 flex-shrink-0" />
+          <p>{error}</p>
         </div>
       )}
 
-      {/* Results by Category */}
-      {searchResult && searchResult.results.length > 0 && (
-        <div className="space-y-6">
-          {Object.keys(platformCategories).map((category) => {
-            const categoryResults = searchResult.results.filter(r => r.category === category)
-            if (categoryResults.length === 0) return null
+      {/* Loading State */}
+      {loading && (
+        <div className="text-center py-12">
+          <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary" />
+          <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
+            Checking username availability across 1500+ platforms...
+          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
+            This may take a few moments
+          </p>
+        </div>
+      )}
 
-            return (
-              <Card key={category} className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center justify-between">
-                  {category}
-                  <span className="text-sm font-normal text-gray-600 dark:text-gray-300">
-                    {categoryResults.filter(r => r.available).length} / {categoryResults.length} available
-                  </span>
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {categoryResults.map((result) => (
-                    <div
-                      key={result.platform}
-                      className={`p-3 rounded-lg border transition-all ${getStatusColor(result)}`}
+      {/* Results */}
+      {results && !loading && (
+        <div className="space-y-6">
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Card className="p-4 text-center">
+              <div className="text-2xl font-bold text-primary">{results.stats.totalSites}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Total Platforms</div>
+            </Card>
+            <Card className="p-4 text-center">
+              <div className="text-2xl font-bold text-primary">{results.stats.totalChecked}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Checked</div>
+            </Card>
+            <Card className="p-4 text-center">
+              <div className="text-2xl font-bold text-green-500">{results.stats.totalAvailable}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Available</div>
+            </Card>
+            <Card className="p-4 text-center">
+              <div className="text-2xl font-bold text-red-500">{results.stats.totalTaken}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Taken</div>
+            </Card>
+          </div>
+
+          {/* Category Filter */}
+          {getCategories().length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant={selectedCategory === 'all' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setSelectedCategory('all')}
+              >
+                All ({results.results.length})
+              </Button>
+              {getCategories().map(category => (
+                <Button
+                  key={category}
+                  variant={selectedCategory === category ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedCategory(category)}
+                >
+                  {category} ({results.categorizedResults[category]?.length || 0})
+                </Button>
+              ))}
+            </div>
+          )}
+
+          {/* Results Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {getFilteredResults().map((result, index) => (
+              <Card 
+                key={index} 
+                className={`p-4 ${result.isExist ? 'border-red-200 dark:border-red-900' : 'border-green-200 dark:border-green-900'}`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg">{result.source}</h3>
+                    {result.category && (
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {result.category}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {result.isExist ? (
+                      <div className="flex items-center text-red-500">
+                        <X className="h-5 w-5 mr-1" />
+                        <span className="text-sm font-medium">Taken</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center text-green-500">
+                        <Check className="h-5 w-5 mr-1" />
+                        <span className="text-sm font-medium">Available</span>
+                      </div>
+                    )}
+                    <a
+                      href={result.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:text-blue-600"
+                      title="Visit profile page"
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          {getStatusIcon(result)}
-                          <span className="font-medium text-gray-900 dark:text-white">
-                            {result.platform}
-                          </span>
-                        </div>
-                        {result.status === 'available' && (
-                          <a
-                            href={result.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary hover:text-primary/80 transition-colors"
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                          </a>
-                        )}
-                      </div>
-                      <div className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-                        {result.status === 'available' && 'Available'}
-                        {result.status === 'taken' && 'Already taken'}
-                        {result.status === 'error' && 'Check failed'}
-                        {result.status === 'checking' && 'Checking...'}
-                        {result.responseTime && (
-                          <span className="ml-2">({result.responseTime}ms)</span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  </div>
                 </div>
               </Card>
-            )
-          })}
-        </div>
-      )}
+            ))}
+          </div>
 
-      {/* Empty State */}
-      {!username && (
-        <div className="text-center py-12">
-          <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            Start Your Username Search
-          </h3>
-          <p className="text-gray-600 dark:text-gray-300 max-w-md mx-auto">
-            Enter a username above to check its availability across hundreds of platforms 
-            and social media sites instantly.
-          </p>
+          {/* No Results Message */}
+          {getFilteredResults().length === 0 && (
+            <div className="text-center py-8">
+              <p className="text-gray-500 dark:text-gray-400">
+                No results found for the selected category.
+              </p>
+            </div>
+          )}
+
+          {/* Pro Upsell */}
+          {results.stats.totalChecked < results.stats.totalSites && (
+            <Card className="p-6 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+              <div className="text-center">
+                <h3 className="text-lg font-semibold mb-2">
+                  Want to check all {results.stats.totalSites}+ platforms?
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                  Upgrade to Pro for complete coverage, API access, and bulk checking
+                </p>
+                <Button asChild>
+                  <a href="/pricing">View Pricing Plans</a>
+                </Button>
+              </div>
+            </Card>
+          )}
         </div>
       )}
     </div>

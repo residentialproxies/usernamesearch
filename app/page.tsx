@@ -12,7 +12,7 @@ export default function HomePage() {
           <span className="text-primary">Username</span>
         </h1>
         <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
-          Check username availability across 500+ social media platforms, websites, 
+          Check username availability across 1500+ social media platforms, websites, 
           and services instantly. Secure your digital identity today.
         </p>
         
@@ -22,7 +22,7 @@ export default function HomePage() {
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
           <div className="text-center">
-            <div className="text-3xl md:text-4xl font-bold text-primary mb-2">500+</div>
+            <div className="text-3xl md:text-4xl font-bold text-primary mb-2">1500+</div>
             <div className="text-gray-600 dark:text-gray-300">Platforms Checked</div>
           </div>
           <div className="text-center">
