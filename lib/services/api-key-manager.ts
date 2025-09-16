@@ -222,11 +222,11 @@ export async function recordFreeUsage(ipAddress: string): Promise<void> {
 export function cleanupExpiredFreeUsage(): void {
   const now = new Date()
   
-  for (const [ip, usage] of FREE_USAGE_STORE.entries()) {
+  FREE_USAGE_STORE.forEach((usage, ip) => {
     if (usage.resetAt < now) {
       FREE_USAGE_STORE.delete(ip)
     }
-  }
+  })
 }
 
 // 每小时清理一次过期记录

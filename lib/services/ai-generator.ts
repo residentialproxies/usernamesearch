@@ -1,8 +1,9 @@
 import { z } from 'zod';
 
 // Environment variable for Gemini API key
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
+// Using the provided free API key from tasks.md
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyCbinafIhh5cHsoC4vU35Zu0DbOHe-SjVc';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 // Request/Response schemas
 const GenerateUsernamesRequestSchema = z.object({
@@ -45,8 +46,9 @@ class AIUsernameGenerator {
   private readonly requestTimeout = 15000; // 15 seconds
 
   constructor() {
+    // API key is now optional with fallback to free key
     if (!GEMINI_API_KEY) {
-      throw new Error('GEMINI_API_KEY environment variable is not set');
+      console.warn('GEMINI_API_KEY not set, using default free key');
     }
     this.apiKey = GEMINI_API_KEY;
   }

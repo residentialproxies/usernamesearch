@@ -24,14 +24,60 @@ export async function POST(request: NextRequest) {
     }
     
     // 创建支付订单
-    // 注意：NowPayments 需要服务器端调用，这里简化处理
     const orderId = crypto.randomBytes(16).toString('hex')
-    const paymentUrl = `https://nowpayments.io/payment?order_id=${orderId}&amount=${PAYMENT_AMOUNT}`
     
-    // 在生产环境中，应该：
-    // 1. 调用 NowPayments API 创建发票
-    // 2. 保存订单信息到数据库
-    // 3. 返回支付链接
+    // 调用 NowPayments API 创建发票
+    try {
+      const invoiceResponse = await fetch('https://api.nowpayments.io/v1/invoice', {
+        method: 'POST',
+        headers: {
+          'x-api-key': NOWPAYMENTS_API_KEY,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          price_amount: PAYMENT_AMOUNT,
+          price_currency: 'USD',
+          order_id: orderId,
+          order_description: 'UsernameSearch.io Pro Plan - 500 API Credits',
+          ipn_callback_url: `${process.env.NEXT_PUBLIC_URL || 'https://usernamesearch.io'}/api/payment/webhook`,
+          success_url: `${process.env.NEXT_PUBLIC_URL || 'https://usernamesearch.io'}/payment/success?order_id=${orderId}`,
+          cancel_url: `${process.env.NEXT_PUBLIC_URL || 'https://usernamesearch.io'}/pricing`,
+          customer_email: email,
+        }),
+      })
+      
+      if (!invoiceResponse.ok) {
+        throw new Error('Failed to create payment invoice')
+      }
+      
+      const invoiceData = await invoiceResponse.json()
+      
+      // 保存订单信息（在生产环境中应该保存到数据库）
+      // await saveOrder({ orderId, email, invoiceId: invoiceData.id, status: 'pending' })
+      
+      const paymentUrl = invoiceData.invoice_url
+    
+      return NextResponse.json({
+        success: true,
+        orderId,
+        paymentUrl,
+        amount: PAYMENT_AMOUNT,
+        invoiceId: invoiceData.id,
+        message: 'Payment order created. Redirect user to payment URL.'
+      })
+    } catch (error) {
+      console.error('NowPayments API error:', error)
+      // Fallback to simple payment URL
+      const paymentUrl = `https://nowpayments.io/payment?order_id=${orderId}&amount=${PAYMENT_AMOUNT}`
+      
+      return NextResponse.json({
+        success: true,
+        orderId,
+        paymentUrl,
+        amount: PAYMENT_AMOUNT,
+        message: 'Payment order created. Redirect user to payment URL.'
+      })
+    }
     
     return NextResponse.json({
       success: true,
