@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+
+# Sitemap location
+Sitemap: https://usernamesearch.io/sitemap.xml
+
+# Crawl-delay for bots
+User-agent: *
+Crawl-delay: 1
