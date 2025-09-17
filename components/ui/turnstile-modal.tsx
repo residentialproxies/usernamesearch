@@ -35,6 +35,8 @@ export function TurnstileModal({
     setError(null)
 
     try {
+      console.log('Turnstile verification started with token:', token.substring(0, 20) + '...')
+      
       // Verify token with our API
       const response = await fetch('/api/verify-turnstile', {
         method: 'POST',
@@ -45,20 +47,24 @@ export function TurnstileModal({
       })
 
       const data = await response.json()
+      console.log('Turnstile API response:', data)
 
       if (data.success) {
+        console.log('Turnstile verification successful')
         onVerificationSuccess(token)
         onOpenChange(false)
       } else {
+        console.error('Turnstile verification failed:', data)
         setError(data.error || 'Verification failed. Please try again.')
         onVerificationError?.(data.error || 'Verification failed')
-        handleRetry()
+        // Don't auto-retry on API failure - let user retry manually
       }
     } catch (err) {
+      console.error('Turnstile network error:', err)
       const errorMessage = 'Network error. Please check your connection and try again.'
       setError(errorMessage)
       onVerificationError?.(errorMessage)
-      handleRetry()
+      // Don't auto-retry on network error - let user retry manually
     } finally {
       setIsVerifying(false)
     }
@@ -93,7 +99,7 @@ export function TurnstileModal({
             Security Verification
           </DialogTitle>
           <DialogDescription>
-            Please complete the security check to continue with your export. This helps us prevent abuse and keep the service free.
+            You've used your 3 free exports. Please complete this security check to continue. This helps us prevent abuse and keep the service free.
           </DialogDescription>
         </DialogHeader>
         
@@ -127,7 +133,7 @@ export function TurnstileModal({
           </div>
 
           {error && (
-            <div className="flex justify-center">
+            <div className="flex justify-center gap-2">
               <Button
                 variant="outline"
                 size="sm"

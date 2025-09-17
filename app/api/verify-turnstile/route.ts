@@ -16,7 +16,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { token } = body
 
+    console.log('Turnstile verification request received')
+    console.log('Token received:', token ? `${token.substring(0, 20)}...` : 'null')
+
     if (!token) {
+      console.error('No token provided in request')
       return NextResponse.json(
         { success: false, error: 'Token is required' },
         { status: 400 }
@@ -26,12 +30,14 @@ export async function POST(request: NextRequest) {
     const secretKey = process.env.TURNSTILE_SECRET_KEY
     
     if (!secretKey) {
-      console.error('TURNSTILE_SECRET_KEY not configured')
+      console.error('TURNSTILE_SECRET_KEY not configured in environment variables')
       return NextResponse.json(
         { success: false, error: 'Server configuration error' },
         { status: 500 }
       )
     }
+
+    console.log('Secret key configured:', secretKey ? 'Yes' : 'No')
 
     // Verify token with Cloudflare
     const verifyResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
@@ -52,13 +58,18 @@ export async function POST(request: NextRequest) {
 
     const verifyData: TurnstileResponse = await verifyResponse.json()
 
+    console.log('Cloudflare API response status:', verifyResponse.status)
+    console.log('Cloudflare API response data:', verifyData)
+
     if (verifyData.success) {
+      console.log('Turnstile verification successful')
       return NextResponse.json({
         success: true,
         message: 'Verification successful'
       })
     } else {
       console.error('Turnstile verification failed:', verifyData['error-codes'])
+      console.error('Full Cloudflare response:', verifyData)
       
       // Map common error codes to user-friendly messages
       const errorMessages: Record<string, string> = {

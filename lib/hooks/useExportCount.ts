@@ -57,8 +57,8 @@ export function useExportCount(): ExportCountState {
     }
   }
 
-  // Need verification if this is the second export or more
-  const needsVerification = count >= 1
+  // Need verification if this is the fourth export or more (3 free exports)
+  const needsVerification = count >= 3
 
   return {
     count,
