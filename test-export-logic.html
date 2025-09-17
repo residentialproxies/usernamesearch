@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Export Logic Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        .count { font-weight: bold; font-size: 1.2em; color: #007bff; }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 400px;
+            text-align: center;
+        }
+        .verification-box {
+            background: #e9ecef;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+            border: 2px dashed #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Export Logic Test</h1>
+    <p>This simulates the export functionality to test the verification logic.</p>
+
+    <div class="test-section">
+        <h2>Current Status</h2>
+        <div class="status info">
+            Export Count: <span class="count" id="exportCount">0</span><br>
+            Needs Verification: <span id="needsVerification">No</span><br>
+            Session Started: <span id="sessionStart">-</span>
+        </div>
+        
+        <button onclick="simulateExport()">Export Results</button>
+        <button onclick="resetSession()">Reset Session</button>
+        <button onclick="clearStorage()">Clear Storage</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Expected Behavior</h2>
+        <div class="status success">
+            ✅ Exports 1-3: Direct download (no verification)<br>
+            ✅ Export 4+: Shows verification modal<br>
+            ✅ After verification: Downloads continue normally
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Log</h2>
+        <div id="testLog" style="background: white; padding: 10px; border: 1px solid #ddd; border-radius: 4px; max-height: 300px; overflow-y: auto;">
+            <em>Test log will appear here...</em>
+        </div>
+    </div>
+
+    <!-- Simulated Turnstile Modal -->
+    <div id="turnstileModal" class="modal">
+        <div class="modal-content">
+            <h3>🛡️ Security Verification</h3>
+            <p>You've used your 3 free exports. Please complete this security check to continue.</p>
+            <div class="verification-box">
+                <strong>Simulated Turnstile Widget</strong><br>
+                <small>This would be the actual Cloudflare Turnstile widget</small>
+            </div>
+            <button onclick="completeVerification()">✅ Complete Verification</button>
+            <button onclick="cancelVerification()">❌ Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        const EXPORT_COUNT_KEY = 'usernamesearch_export_count';
+        const SESSION_START_KEY = 'usernamesearch_session_start';
+
+        function updateStatus() {
+            const count = parseInt(localStorage.getItem(EXPORT_COUNT_KEY) || '0');
+            const sessionStart = localStorage.getItem(SESSION_START_KEY);
+            const needsVerification = count >= 3;
+
+            document.getElementById('exportCount').textContent = count;
+            document.getElementById('needsVerification').textContent = needsVerification ? 'Yes' : 'No';
+            document.getElementById('sessionStart').textContent = sessionStart ? 
+                new Date(parseInt(sessionStart)).toLocaleString() : '-';
+            
+            logMessage(`Status updated - Count: ${count}, Verification needed: ${needsVerification}`);
+        }
+
+        function logMessage(message) {
+            const log = document.getElementById('testLog');
+            const time = new Date().toLocaleTimeString();
+            log.innerHTML += `<div>[${time}] ${message}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function simulateExport() {
+            const count = parseInt(localStorage.getItem(EXPORT_COUNT_KEY) || '0');
+            
+            logMessage(`🚀 Attempting export #${count + 1}...`);
+
+            if (count >= 3) {
+                logMessage('⚠️ Verification required - showing modal');
+                document.getElementById('turnstileModal').style.display = 'block';
+                return;
+            }
+
+            // Direct export
+            const newCount = count + 1;
+            localStorage.setItem(EXPORT_COUNT_KEY, newCount.toString());
+            
+            if (!localStorage.getItem(SESSION_START_KEY)) {
+                localStorage.setItem(SESSION_START_KEY, Date.now().toString());
+            }
+
+            logMessage(`✅ Export #${newCount} completed (no verification needed)`);
+            updateStatus();
+
+            // Simulate download
+            setTimeout(() => {
+                logMessage(`💾 Download started for export #${newCount}`);
+            }, 500);
+        }
+
+        function completeVerification() {
+            document.getElementById('turnstileModal').style.display = 'none';
+            
+            const count = parseInt(localStorage.getItem(EXPORT_COUNT_KEY) || '0');
+            const newCount = count + 1;
+            localStorage.setItem(EXPORT_COUNT_KEY, newCount.toString());
+
+            logMessage(`✅ Verification completed - proceeding with export #${newCount}`);
+            logMessage(`💾 Download started for export #${newCount}`);
+            
+            updateStatus();
+        }
+
+        function cancelVerification() {
+            document.getElementById('turnstileModal').style.display = 'none';
+            logMessage('❌ Verification cancelled');
+        }
+
+        function resetSession() {
+            localStorage.setItem(EXPORT_COUNT_KEY, '0');
+            localStorage.setItem(SESSION_START_KEY, Date.now().toString());
+            logMessage('🔄 Session reset');
+            updateStatus();
+        }
+
+        function clearStorage() {
+            localStorage.removeItem(EXPORT_COUNT_KEY);
+            localStorage.removeItem(SESSION_START_KEY);
+            logMessage('🗑️ Storage cleared');
+            updateStatus();
+        }
+
+        // Initialize
+        updateStatus();
+        logMessage('🎯 Export logic test initialized');
+    </script>
+</body>
+</html>
