@@ -17,8 +17,6 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 import { exportResults, copyToClipboard, generateShareURL } from '@/lib/utils/export'
 import { getPlatformIcon, getIconFromUrl, getPlatformColor } from '@/lib/platform-icons'
-import { useExportCount } from '@/lib/hooks/useExportCount'
-import { TurnstileModal } from '@/components/ui/turnstile-modal'
 
 interface SearchResult {
   url: string
@@ -65,10 +63,6 @@ export default function SearchInterface() {
   const [searchHistory, setSearchHistory] = useState<string[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [copiedResults, setCopiedResults] = useState(false)
-  const [showTurnstileModal, setShowTurnstileModal] = useState(false)
-  const [pendingExportAction, setPendingExportAction] = useState<(() => void) | null>(null)
-  
-  const exportCount = useExportCount()
 
   // Load search history from localStorage
   useEffect(() => {
@@ -172,29 +166,6 @@ export default function SearchInterface() {
     }
   }
 
-  const handleExportAction = (exportFn: () => void) => {
-    if (exportCount.needsVerification) {
-      setPendingExportAction(() => exportFn)
-      setShowTurnstileModal(true)
-    } else {
-      exportFn()
-      exportCount.incrementCount()
-    }
-  }
-
-  const handleTurnstileSuccess = (token: string) => {
-    if (pendingExportAction) {
-      pendingExportAction()
-      exportCount.incrementCount()
-      setPendingExportAction(null)
-    }
-    setShowTurnstileModal(false)
-  }
-
-  const handleTurnstileError = (error: string) => {
-    console.error('Turnstile verification failed:', error)
-    setPendingExportAction(null)
-  }
 
   const getFilteredResults = () => {
     if (!results) return []
@@ -425,17 +396,17 @@ export default function SearchInterface() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuItem 
-                    onClick={() => handleExportAction(() => exportResults('json', username, results.results, results.stats))}
+                    onClick={() => exportResults('json', username, results.results, results.stats)}
                   >
                     Export as JSON
                   </DropdownMenuItem>
                   <DropdownMenuItem 
-                    onClick={() => handleExportAction(() => exportResults('csv', username, results.results, results.stats))}
+                    onClick={() => exportResults('csv', username, results.results, results.stats)}
                   >
                     Export as CSV
                   </DropdownMenuItem>
                   <DropdownMenuItem 
-                    onClick={() => handleExportAction(() => exportResults('markdown', username, results.results, results.stats))}
+                    onClick={() => exportResults('markdown', username, results.results, results.stats)}
                   >
                     Export as Markdown
                   </DropdownMenuItem>
@@ -823,14 +794,6 @@ export default function SearchInterface() {
           )}
         </div>
       )}
-      
-      {/* Turnstile Verification Modal */}
-      <TurnstileModal
-        open={showTurnstileModal}
-        onOpenChange={setShowTurnstileModal}
-        onVerificationSuccess={handleTurnstileSuccess}
-        onVerificationError={handleTurnstileError}
-      />
     </div>
   )
 }
