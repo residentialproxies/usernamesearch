@@ -42,49 +42,63 @@ export function loadWhatsMyNameData(): Record<string, WhatsMyNameSite> {
     return JSON.parse(rawData)
   } catch (error) {
     console.error('Error loading WhatsMyName data:', error)
-    // Return fallback data if file not found
+    // Return fallback data if file not found - matches complete data format
     return {
       "Instagram": {
         "name": "Instagram",
         "url": "https://www.instagram.com/{}",
         "urlMain": "https://www.instagram.com",
-        "category": "Social Networks"
+        "category": "Social Networks",
+        "errorType": "status_code",
+        "errorMsg": ""
       },
       "Twitter": {
         "name": "Twitter",
         "url": "https://twitter.com/{}",
         "urlMain": "https://twitter.com", 
-        "category": "Social Networks"
+        "category": "Social Networks",
+        "errorType": "status_code",
+        "errorMsg": ""
       },
       "GitHub": {
         "name": "GitHub",
         "url": "https://github.com/{}",
         "urlMain": "https://github.com",
-        "category": "Technology"
+        "category": "Technology",
+        "errorType": "status_code",
+        "errorMsg": ""
       },
       "TikTok": {
         "name": "TikTok",
         "url": "https://www.tiktok.com/@{}",
         "urlMain": "https://www.tiktok.com",
-        "category": "Social Networks"
+        "category": "Social Networks",
+        "errorType": "status_code",
+        "errorMsg": ""
       },
       "YouTube": {
         "name": "YouTube",
         "url": "https://www.youtube.com/user/{}",
         "urlMain": "https://www.youtube.com",
-        "category": "Video"
+        "category": "Video",
+        "errorType": "status_code",
+        "errorMsg": ""
       },
       "LinkedIn": {
         "name": "LinkedIn",
         "url": "https://www.linkedin.com/in/{}",
         "urlMain": "https://www.linkedin.com", 
-        "category": "Professional"
+        "category": "Professional",
+        "errorType": "status_code",
+        "errorMsg": ""
       },
       "Facebook": {
         "name": "Facebook",
         "url": "https://www.facebook.com/{}",
         "urlMain": "https://www.facebook.com",
-        "category": "Social Networks"
+        "category": "Social Networks",
+        "errorType": "status_code", 
+        "errorMsg": ""
       }
     }
   }

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import SearchInterface from '@/components/search/search-interface'
 
 export const metadata: Metadata = {
-  title: 'UsernameSearch.io - Check Username Availability Across 520+ Platforms Instantly',
+  title: 'Username Search - Check Username Availability Across 520+ Platforms Instantly',
   description: 'Free username availability checker for 520+ social media platforms. 20 free API searches for registered users. Find your perfect username for Instagram, TikTok, Twitter/X, and more.',
   keywords: 'username checker, username availability, social media username, check username, username search, instagram username, tiktok username, twitter username, username generator, brand name checker',
   openGraph: {
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'UsernameSearch.io - Check Username Availability on 520+ Platforms',
+    title: 'Username Search - Check Username Availability on 520+ Platforms',
     description: 'Free username checker for social media. 20 free API searches for registered users across Instagram, TikTok, Twitter, and 520+ platforms.',
     creator: '@usernamesearch',
     images: ['https://usernamesearch.io/twitter-image.png'],
