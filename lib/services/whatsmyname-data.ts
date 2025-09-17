@@ -37,12 +37,56 @@ export interface ProcessedSite {
  */
 export function loadWhatsMyNameData(): Record<string, WhatsMyNameSite> {
   try {
-    const dataPath = '/Users/butterfly/dev/whatsmyname/lib/data.json'
+    const dataPath = path.join(process.cwd(), 'data', 'whatsmyname-data.json')
     const rawData = fs.readFileSync(dataPath, 'utf-8')
     return JSON.parse(rawData)
   } catch (error) {
     console.error('Error loading WhatsMyName data:', error)
-    return {}
+    // Return fallback data if file not found
+    return {
+      "Instagram": {
+        "name": "Instagram",
+        "url": "https://www.instagram.com/{}",
+        "urlMain": "https://www.instagram.com",
+        "category": "Social Networks"
+      },
+      "Twitter": {
+        "name": "Twitter",
+        "url": "https://twitter.com/{}",
+        "urlMain": "https://twitter.com", 
+        "category": "Social Networks"
+      },
+      "GitHub": {
+        "name": "GitHub",
+        "url": "https://github.com/{}",
+        "urlMain": "https://github.com",
+        "category": "Technology"
+      },
+      "TikTok": {
+        "name": "TikTok",
+        "url": "https://www.tiktok.com/@{}",
+        "urlMain": "https://www.tiktok.com",
+        "category": "Social Networks"
+      },
+      "YouTube": {
+        "name": "YouTube",
+        "url": "https://www.youtube.com/user/{}",
+        "urlMain": "https://www.youtube.com",
+        "category": "Video"
+      },
+      "LinkedIn": {
+        "name": "LinkedIn",
+        "url": "https://www.linkedin.com/in/{}",
+        "urlMain": "https://www.linkedin.com", 
+        "category": "Professional"
+      },
+      "Facebook": {
+        "name": "Facebook",
+        "url": "https://www.facebook.com/{}",
+        "urlMain": "https://www.facebook.com",
+        "category": "Social Networks"
+      }
+    }
   }
 }
 

@@ -72,7 +72,7 @@ export default function Header() {
                   ))}
                 </div>
               </div>
-            ) : (
+            ) : item.href ? (
               <Link
                 key={item.name}
                 href={item.href}
@@ -81,7 +81,7 @@ export default function Header() {
                 <item.icon className="w-5 h-5 mr-2" />
                 <span>{item.name}</span>
               </Link>
-            )
+            ) : null
           ))}
           
           {/* Username AI Button */}
@@ -164,7 +164,7 @@ export default function Header() {
                     ))}
                   </div>
                 </div>
-              ) : (
+              ) : item.href ? (
                 <Link
                   key={item.name}
                   href={item.href}
@@ -174,7 +174,7 @@ export default function Header() {
                   <item.icon className="w-5 h-5 mr-2" />
                   <span>{item.name}</span>
                 </Link>
-              )
+              ) : null
             ))}
             
             {/* Username AI - Mobile */}

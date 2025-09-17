@@ -5,6 +5,9 @@ import {
   getSiteStatistics 
 } from '@/lib/services/whatsmyname-data'
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic'
+
 /**
  * GET /api/sites
  * Get paginated list of supported sites

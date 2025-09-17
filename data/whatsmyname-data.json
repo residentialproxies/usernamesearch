@@ -1,0 +1,72 @@
+{
+  "Instagram": {
+    "url": "https://www.instagram.com/{}",
+    "urlMain": "https://www.instagram.com",
+    "category": "Social Networks",
+    "errorType": "status_code",
+    "errorMsg": "The link you followed may be broken"
+  },
+  "Twitter": {
+    "url": "https://twitter.com/{}",
+    "urlMain": "https://twitter.com", 
+    "category": "Social Networks",
+    "errorType": "status_code",
+    "errorMsg": "This account doesn't exist"
+  },
+  "Facebook": {
+    "url": "https://www.facebook.com/{}",
+    "urlMain": "https://www.facebook.com",
+    "category": "Social Networks", 
+    "errorType": "status_code",
+    "errorMsg": "This content isn't available right now"
+  },
+  "GitHub": {
+    "url": "https://github.com/{}",
+    "urlMain": "https://github.com",
+    "category": "Technology",
+    "errorType": "status_code",
+    "errorMsg": "Not Found"
+  },
+  "TikTok": {
+    "url": "https://www.tiktok.com/@{}",
+    "urlMain": "https://www.tiktok.com",
+    "category": "Social Networks",
+    "errorType": "status_code", 
+    "errorMsg": "Couldn't find this account"
+  },
+  "YouTube": {
+    "url": "https://www.youtube.com/user/{}",
+    "urlMain": "https://www.youtube.com",
+    "category": "Video",
+    "errorType": "status_code",
+    "errorMsg": "This channel does not exist"
+  },
+  "LinkedIn": {
+    "url": "https://www.linkedin.com/in/{}",
+    "urlMain": "https://www.linkedin.com", 
+    "category": "Professional",
+    "errorType": "status_code",
+    "errorMsg": "This profile doesn't exist"
+  },
+  "Pinterest": {
+    "url": "https://www.pinterest.com/{}",
+    "urlMain": "https://www.pinterest.com",
+    "category": "Social Networks",
+    "errorType": "status_code",
+    "errorMsg": "Sorry, we couldn't find that page"
+  },
+  "Reddit": {
+    "url": "https://www.reddit.com/user/{}",
+    "urlMain": "https://www.reddit.com",
+    "category": "Social Networks", 
+    "errorType": "status_code",
+    "errorMsg": "page not found"
+  },
+  "Snapchat": {
+    "url": "https://www.snapchat.com/add/{}",
+    "urlMain": "https://www.snapchat.com",
+    "category": "Social Networks",
+    "errorType": "status_code",
+    "errorMsg": "Sorry! Couldn't find"
+  }
+}

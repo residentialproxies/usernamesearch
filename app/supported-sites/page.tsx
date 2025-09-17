@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -95,7 +95,7 @@ const RankBadge = ({ rank }: { rank: number }) => {
   )
 }
 
-export default function SupportedSitesPage() {
+function SupportedSitesContent() {
   const [data, setData] = useState<PaginationData | null>(null)
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
@@ -492,5 +492,19 @@ export default function SupportedSitesPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SupportedSitesPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      </div>
+    }>
+      <SupportedSitesContent />
+    </Suspense>
   )
 }
