@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme-provider'
+import { CookieConsent } from '@/components/cookie-consent'
 import './globals.css'
 import Header from '@/components/layout/header'
 import Footer from '@/components/layout/footer'
@@ -20,6 +21,14 @@ export const metadata: Metadata = {
     telephone: false,
   },
   metadataBase: new URL('https://usernamesearch.io'),
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: '32x32' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
@@ -68,6 +77,7 @@ export default function RootLayout({
             </main>
             <Footer />
           </div>
+          <CookieConsent />
         </ThemeProvider>
       </body>
     </html>

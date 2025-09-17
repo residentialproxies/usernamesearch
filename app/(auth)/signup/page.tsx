@@ -111,7 +111,7 @@ export default function SignupPage() {
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Check className="h-3 w-3 text-green-500" />
-                  <span>100+ popular platforms</span>
+                  <span>All 1500+ platforms</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Check className="h-3 w-3 text-green-500" />

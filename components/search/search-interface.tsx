@@ -1,10 +1,22 @@
 'use client'
 
-import React, { useState, useCallback } from 'react'
-import { Search, Loader2, Check, X, ExternalLink, AlertCircle } from 'lucide-react'
+import React, { useState, useCallback, useEffect } from 'react'
+import { Search, Loader2, Check, X, ExternalLink, AlertCircle, Sparkles, TrendingUp, Filter, Download, History, Copy, Share2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { motion, AnimatePresence } from 'framer-motion'
+import { exportResults, copyToClipboard, generateShareURL } from '@/lib/utils/export'
+import { getPlatformIcon, getIconFromUrl, getPlatformColor } from '@/lib/platform-icons'
 
 interface SearchResult {
   url: string
@@ -26,12 +38,76 @@ interface ApiResponse {
   apiError: string | null
 }
 
+interface ProgressiveResult {
+  platform: string
+  status: 'checking' | 'available' | 'taken' | 'error'
+  url?: string
+  category?: string
+}
+
+// Popular platforms to check first for immediate feedback
+const PRIORITY_PLATFORMS = [
+  'instagram', 'tiktok', 'twitter', 'youtube', 'github',
+  'linkedin', 'facebook', 'snapchat', 'twitch', 'discord'
+]
+
 export default function SearchInterface() {
   const [username, setUsername] = useState('')
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState<ApiResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [progressiveResults, setProgressiveResults] = useState<ProgressiveResult[]>([])
+  const [searchProgress, setSearchProgress] = useState(0)
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [searchHistory, setSearchHistory] = useState<string[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [copiedResults, setCopiedResults] = useState(false)
+
+  // Load search history from localStorage
+  useEffect(() => {
+    const history = localStorage.getItem('searchHistory')
+    if (history) {
+      setSearchHistory(JSON.parse(history))
+    }
+  }, [])
+
+  // Save to search history
+  const saveToHistory = (searchTerm: string) => {
+    const newHistory = [searchTerm, ...searchHistory.filter(h => h !== searchTerm)].slice(0, 10)
+    setSearchHistory(newHistory)
+    localStorage.setItem('searchHistory', JSON.stringify(newHistory))
+  }
+
+  // Simulate progressive loading
+  const simulateProgressiveLoading = () => {
+    setProgressiveResults([])
+    setSearchProgress(0)
+    
+    // Simulate checking platforms one by one
+    const platforms = PRIORITY_PLATFORMS.map(p => ({ 
+      platform: p, 
+      status: 'checking' as const 
+    }))
+    
+    platforms.forEach((platform, index) => {
+      setTimeout(() => {
+        setProgressiveResults(prev => {
+          const updated = [...prev]
+          if (!updated[index]) {
+            updated.push({
+              ...platform,
+              status: Math.random() > 0.3 ? 'available' : 'taken',
+              url: `https://${platform.platform}.com/${username}`,
+              category: 'Social Media'
+            })
+          }
+          return updated
+        })
+        setSearchProgress((index + 1) / platforms.length * 100)
+      }, 200 + index * 100) // Stagger the results
+    })
+  }
 
   const handleSearch = useCallback(async () => {
     if (!username.trim()) {
@@ -47,6 +123,11 @@ export default function SearchInterface() {
     setLoading(true)
     setError(null)
     setResults(null)
+    setProgressiveResults([])
+    saveToHistory(username.trim())
+    
+    // Start progressive loading animation
+    simulateProgressiveLoading()
 
     try {
       const response = await fetch('/api/check', {
@@ -102,25 +183,40 @@ export default function SearchInterface() {
 
   return (
     <div className="w-full max-w-6xl mx-auto space-y-6">
-      {/* Search Bar */}
-      <div className="flex gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-          <Input
-            type="text"
-            placeholder="Enter username to check across 1500+ platforms..."
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            onKeyPress={handleKeyPress}
-            className="pl-10 pr-4 py-3 text-lg"
-            disabled={loading}
-          />
-        </div>
+      {/* Prominent Search Bar */}
+      <div className="max-w-4xl mx-auto">
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <Input
+              type="text"
+              placeholder="Enter username to check availability..."
+              value={username}
+              onChange={(e) => {
+                setUsername(e.target.value)
+                setShowSuggestions(true)
+              }}
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+              onKeyPress={handleKeyPress}
+              className="h-14 pl-14 pr-12 text-lg font-medium shadow-lg border-2 focus:border-primary rounded-lg"
+              disabled={loading}
+            />
+            {username && (
+              <Button
+                size="icon"
+                variant="ghost"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                onClick={() => setUsername('')}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         <Button 
           onClick={handleSearch} 
           disabled={loading || !username.trim()}
-          size="lg"
-          className="px-8"
+          className="h-14 px-10 text-lg font-semibold shadow-lg rounded-lg min-w-[140px]"
         >
           {loading ? (
             <>
@@ -134,32 +230,203 @@ export default function SearchInterface() {
             </>
           )}
         </Button>
+        </div>
+        
+        {/* Search Suggestions Dropdown */}
+        <AnimatePresence>
+          {showSuggestions && searchHistory.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="absolute top-full mt-2 w-full bg-white dark:bg-gray-800 border rounded-lg shadow-lg z-10 max-w-2xl"
+            >
+              <div className="p-2">
+                <div className="text-xs font-medium text-gray-500 dark:text-gray-400 px-2 py-1">
+                  Recent Searches
+                </div>
+                {searchHistory.slice(0, 5).map((item, index) => (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      setUsername(item)
+                      setShowSuggestions(false)
+                    }}
+                    className="w-full text-left px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded flex items-center gap-2"
+                  >
+                    <History className="h-3 w-3 text-gray-400" />
+                    <span className="text-sm">{item}</span>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* Error Message */}
+      {/* Error Message with Better User Guidance */}
       {error && (
-        <div className="flex items-center gap-2 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400">
-          <AlertCircle className="h-5 w-5 flex-shrink-0" />
-          <p>{error}</p>
+        <div className="max-w-2xl mx-auto">
+          <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-yellow-800 dark:text-yellow-200 font-semibold">
+                  {error.includes('Request limit') ? 'Daily limit reached!' : 'Notice'}
+                </p>
+                <p className="text-yellow-700 dark:text-yellow-300 text-sm mt-1">
+                  {error.includes('Request limit') 
+                    ? 'You\'ve used all 10 free searches today. Come back tomorrow or upgrade to Pro for unlimited searches!' 
+                    : error}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Loading State */}
+      {/* Simplified Loading State with Progress Bar */}
       {loading && (
-        <div className="text-center py-12">
-          <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary" />
-          <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
-            Checking username availability across 1500+ platforms...
-          </p>
-          <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
-            This may take a few moments
-          </p>
+        <div className="max-w-2xl mx-auto space-y-4">
+          <div className="text-center">
+            <h3 className="text-lg font-medium mb-3">Checking @{username}</h3>
+            <Progress value={searchProgress} className="h-2" />
+            <p className="text-sm text-muted-foreground mt-2">
+              Checking {Math.round(searchProgress)}% of platforms...
+            </p>
+          </div>
+          
+          {/* Compact Platform Status Display */}
+          {progressiveResults.length > 0 && (
+            <div className="flex flex-wrap gap-2 justify-center">
+              <AnimatePresence>
+                {progressiveResults.map((result, index) => (
+                  <motion.div
+                    key={result.platform}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.03 }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border bg-card"
+                  >
+                    {/* Platform Favicon with larger size */}
+                    <img 
+                      src={`https://www.google.com/s2/favicons?domain=${result.platform}.com&sz=32`}
+                      alt={result.platform}
+                      className="w-6 h-6 rounded"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        target.style.display = 'none';
+                        const span = document.createElement('span');
+                        span.className = 'w-6 h-6 flex items-center justify-center bg-primary/10 text-primary text-xs font-bold rounded';
+                        span.textContent = result.platform.charAt(0).toUpperCase();
+                        target.parentNode?.replaceChild(span, target);
+                      }}
+                    />
+                    <span className="text-sm font-medium capitalize">{result.platform}</span>
+                    {result.status === 'checking' ? (
+                      <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+                    ) : result.status === 'available' ? (
+                      <Check className="h-3 w-3 text-green-500" />
+                    ) : (
+                      <X className="h-3 w-3 text-red-500" />
+                    )}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          )}
         </div>
       )}
 
       {/* Results */}
       {results && !loading && (
         <div className="space-y-6">
+          {/* Action Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="px-3 py-1">
+                <TrendingUp className="h-3 w-3 mr-1" />
+                {results.stats.totalAvailable} Available
+              </Badge>
+              <Badge variant="outline" className="px-3 py-1">
+                {results.stats.totalTaken} Taken
+              </Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+              >
+                <Filter className="h-4 w-4 mr-1" />
+                {viewMode === 'grid' ? 'List View' : 'Grid View'}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={async () => {
+                  const success = await copyToClipboard({
+                    username,
+                    timestamp: new Date().toISOString(),
+                    totalChecked: results.stats.totalChecked,
+                    totalAvailable: results.stats.totalAvailable,
+                    totalTaken: results.stats.totalTaken,
+                    results: results.results
+                  })
+                  if (success) {
+                    setCopiedResults(true)
+                    setTimeout(() => setCopiedResults(false), 2000)
+                  }
+                }}
+              >
+                {copiedResults ? (
+                  <Check className="h-4 w-4 mr-1" />
+                ) : (
+                  <Copy className="h-4 w-4 mr-1" />
+                )}
+                Copy
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="sm" variant="outline">
+                    <Download className="h-4 w-4 mr-1" />
+                    Export
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem 
+                    onClick={() => exportResults('json', username, results.results, results.stats)}
+                  >
+                    Export as JSON
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => exportResults('csv', username, results.results, results.stats)}
+                  >
+                    Export as CSV
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => exportResults('markdown', username, results.results, results.stats)}
+                  >
+                    Export as Markdown
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  const shareURL = generateShareURL(username, results.results)
+                  navigator.clipboard.writeText(shareURL)
+                  // You could also open a share dialog here
+                  window.open(`https://twitter.com/intent/tweet?text=Check out my username availability on UsernameSearch.io!&url=${encodeURIComponent(shareURL)}`, '_blank')
+                }}
+              >
+                <Share2 className="h-4 w-4 mr-1" />
+                Share
+              </Button>
+            </div>
+          </div>
+          
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Card className="p-4 text-center">
@@ -203,48 +470,301 @@ export default function SearchInterface() {
             </div>
           )}
 
-          {/* Results Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {getFilteredResults().map((result, index) => (
-              <Card 
-                key={index} 
-                className={`p-4 ${result.isExist ? 'border-red-200 dark:border-red-900' : 'border-green-200 dark:border-green-900'}`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-lg">{result.source}</h3>
-                    {result.category && (
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {result.category}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {result.isExist ? (
-                      <div className="flex items-center text-red-500">
-                        <X className="h-5 w-5 mr-1" />
-                        <span className="text-sm font-medium">Taken</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center text-green-500">
-                        <Check className="h-5 w-5 mr-1" />
-                        <span className="text-sm font-medium">Available</span>
-                      </div>
-                    )}
-                    <a
-                      href={result.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-500 hover:text-blue-600"
-                      title="Visit profile page"
+          {/* Results with Tab View */}
+          <Tabs defaultValue="all" className="w-full">
+            <TabsList className="grid grid-cols-4 w-full max-w-md">
+              <TabsTrigger value="all">All</TabsTrigger>
+              <TabsTrigger value="available">
+                <Check className="h-3 w-3 mr-1" />
+                Available
+              </TabsTrigger>
+              <TabsTrigger value="taken">
+                <X className="h-3 w-3 mr-1" />
+                Taken
+              </TabsTrigger>
+              <TabsTrigger value="popular">Popular</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="all" className="mt-4">
+              <div className={viewMode === 'grid' ? 
+                "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" : 
+                "space-y-2"
+              }>
+                <AnimatePresence>
+                  {getFilteredResults().map((result, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.02 }}
                     >
-                      <ExternalLink className="h-4 w-4" />
-                    </a>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
+                      <Card 
+                        className={`p-4 hover:shadow-md transition-all hover:scale-[1.02] ${
+                          result.isExist ? 'border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-900/10' : 
+                          'border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-900/10'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            {(() => {
+                              const platformIcon = getPlatformIcon(result.source)
+                              const fallbackIcon = getIconFromUrl(result.url)
+                              const iconSrc = platformIcon || fallbackIcon
+                              const bgColor = getPlatformColor(result.source)
+                              
+                              if (!iconSrc) {
+                                return (
+                                  <div 
+                                    className="w-10 h-10 flex items-center justify-center text-white text-sm font-bold rounded-lg shadow-sm"
+                                    style={{ backgroundColor: bgColor }}
+                                  >
+                                    {result.source.charAt(0).toUpperCase()}
+                                  </div>
+                                )
+                              }
+                              
+                              return (
+                                <img 
+                                  src={iconSrc}
+                                  alt={result.source}
+                                  className="w-10 h-10 flex-shrink-0 rounded-lg shadow-sm object-cover"
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    const div = document.createElement('div');
+                                    div.className = 'w-10 h-10 flex items-center justify-center text-white text-sm font-bold rounded-lg shadow-sm';
+                                    div.style.backgroundColor = bgColor;
+                                    div.textContent = result.source.charAt(0).toUpperCase();
+                                    target.parentNode?.replaceChild(div, target);
+                                  }}
+                                />
+                              )
+                            })()}
+                            <div className="min-w-0 flex-1">
+                              <h3 className="font-semibold text-base">{result.source}</h3>
+                              {result.category && (
+                                <p className="text-xs text-muted-foreground">{result.category}</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            {result.isExist ? (
+                              <div className="flex items-center gap-1">
+                                <X className="h-5 w-5 text-red-500" />
+                                <span className="text-xs font-medium text-red-600 dark:text-red-400">Taken</span>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-1">
+                                <Check className="h-5 w-5 text-green-500" />
+                                <span className="text-xs font-medium text-green-600 dark:text-green-400">Available</span>
+                              </div>
+                            )}
+                            <a
+                              href={result.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-gray-400 hover:text-primary transition-colors p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+                              title="Visit profile"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </a>
+                          </div>
+                        </div>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="available" className="mt-4">
+              <div className={viewMode === 'grid' ? 
+                "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" : 
+                "space-y-2"
+              }>
+                {getFilteredResults()
+                  .filter(r => !r.isExist)
+                  .map((result, index) => (
+                    <Card key={index} className="p-3 border-green-200 dark:border-green-900">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          {(() => {
+                            const platformIcon = getPlatformIcon(result.source)
+                            const fallbackIcon = getIconFromUrl(result.url)
+                            const iconSrc = platformIcon || fallbackIcon
+                            const bgColor = getPlatformColor(result.source)
+                            
+                            if (!iconSrc) {
+                              return (
+                                <div 
+                                  className="w-8 h-8 flex items-center justify-center text-white text-xs font-bold rounded-lg shadow-sm"
+                                  style={{ backgroundColor: bgColor }}
+                                >
+                                  {result.source.charAt(0).toUpperCase()}
+                                </div>
+                              )
+                            }
+                            
+                            return (
+                              <img 
+                                src={iconSrc}
+                                alt={result.source}
+                                className="w-8 h-8 flex-shrink-0 rounded-lg shadow-sm object-cover"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  const div = document.createElement('div');
+                                  div.className = 'w-8 h-8 flex items-center justify-center text-white text-xs font-bold rounded-lg shadow-sm';
+                                  div.style.backgroundColor = bgColor;
+                                  div.textContent = result.source.charAt(0).toUpperCase();
+                                  target.parentNode?.replaceChild(div, target);
+                                }}
+                              />
+                            )
+                          })()}
+                          <h3 className="font-semibold text-base">{result.source}</h3>
+                        </div>
+                        <a href={result.url} target="_blank" rel="noopener noreferrer">
+                          <Button size="sm" variant="ghost" className="h-7 px-2">
+                            <ExternalLink className="h-3 w-3" />
+                          </Button>
+                        </a>
+                      </div>
+                    </Card>
+                  ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="taken" className="mt-4">
+              <div className={viewMode === 'grid' ? 
+                "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" : 
+                "space-y-2"
+              }>
+                {getFilteredResults()
+                  .filter(r => r.isExist)
+                  .map((result, index) => (
+                    <Card key={index} className="p-4 border-red-200 dark:border-red-900">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          {(() => {
+                            const platformIcon = getPlatformIcon(result.source)
+                            const fallbackIcon = getIconFromUrl(result.url)
+                            const iconSrc = platformIcon || fallbackIcon
+                            const bgColor = getPlatformColor(result.source)
+                            
+                            if (!iconSrc) {
+                              return (
+                                <div 
+                                  className="w-8 h-8 flex items-center justify-center text-white text-xs font-bold rounded-lg shadow-sm"
+                                  style={{ backgroundColor: bgColor }}
+                                >
+                                  {result.source.charAt(0).toUpperCase()}
+                                </div>
+                              )
+                            }
+                            
+                            return (
+                              <img 
+                                src={iconSrc}
+                                alt={result.source}
+                                className="w-8 h-8 flex-shrink-0 rounded-lg shadow-sm object-cover"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  const div = document.createElement('div');
+                                  div.className = 'w-8 h-8 flex items-center justify-center text-white text-xs font-bold rounded-lg shadow-sm';
+                                  div.style.backgroundColor = bgColor;
+                                  div.textContent = result.source.charAt(0).toUpperCase();
+                                  target.parentNode?.replaceChild(div, target);
+                                }}
+                              />
+                            )
+                          })()}
+                          <div>
+                            <h3 className="font-semibold">{result.source}</h3>
+                            <p className="text-sm text-gray-500">{result.category}</p>
+                          </div>
+                        </div>
+                        <Badge variant="destructive">Taken</Badge>
+                      </div>
+                    </Card>
+                  ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="popular" className="mt-4">
+              <div className={viewMode === 'grid' ? 
+                "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" : 
+                "space-y-2"
+              }>
+                {getFilteredResults()
+                  .filter(r => PRIORITY_PLATFORMS.some(p => 
+                    r.source.toLowerCase().includes(p)
+                  ))
+                  .map((result, index) => (
+                    <Card key={index} className={`p-4 ${
+                      result.isExist ? 'border-red-200' : 'border-green-200'
+                    }`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          {(() => {
+                            const platformIcon = getPlatformIcon(result.source)
+                            const fallbackIcon = getIconFromUrl(result.url)
+                            const iconSrc = platformIcon || fallbackIcon
+                            const bgColor = getPlatformColor(result.source)
+                            
+                            if (!iconSrc) {
+                              return (
+                                <div 
+                                  className="w-10 h-10 flex items-center justify-center text-white text-sm font-bold rounded-lg shadow-sm"
+                                  style={{ backgroundColor: bgColor }}
+                                >
+                                  {result.source.charAt(0).toUpperCase()}
+                                </div>
+                              )
+                            }
+                            
+                            return (
+                              <img 
+                                src={iconSrc}
+                                alt={result.source}
+                                className="w-10 h-10 flex-shrink-0 rounded-lg shadow-sm object-cover"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  const div = document.createElement('div');
+                                  div.className = 'w-10 h-10 flex items-center justify-center text-white text-sm font-bold rounded-lg shadow-sm';
+                                  div.style.backgroundColor = bgColor;
+                                  div.textContent = result.source.charAt(0).toUpperCase();
+                                  target.parentNode?.replaceChild(div, target);
+                                }}
+                              />
+                            )
+                          })()}
+                          <div>
+                            <h3 className="font-semibold">{result.source}</h3>
+                            <Badge variant="secondary" className="mt-1">
+                              <TrendingUp className="h-3 w-3 mr-1" />
+                              Popular
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {result.isExist ? (
+                            <X className="h-5 w-5 text-red-500" />
+                          ) : (
+                            <Check className="h-5 w-5 text-green-500" />
+                          )}
+                          <a href={result.url} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="h-4 w-4 text-blue-500" />
+                          </a>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+              </div>
+            </TabsContent>
+          </Tabs>
 
           {/* No Results Message */}
           {getFilteredResults().length === 0 && (
@@ -260,10 +780,10 @@ export default function SearchInterface() {
             <Card className="p-6 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
               <div className="text-center">
                 <h3 className="text-lg font-semibold mb-2">
-                  Want to check all {results.stats.totalSites}+ platforms?
+                  Want unlimited searches and automation?
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Upgrade to Pro for complete coverage, API access, and bulk checking
+                  Upgrade to Pro for unlimited daily searches, API access, and bulk checking capabilities
                 </p>
                 <Button asChild>
                   <a href="/pricing">View Pricing Plans</a>

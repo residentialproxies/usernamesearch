@@ -16,17 +16,14 @@ export default function Footer() {
       title: 'Company',
       links: [
         { name: 'About', href: '/about' },
-        { name: 'Blog', href: '/blog' },
-        { name: 'Careers', href: '/careers' },
-        { name: 'Press Kit', href: '/press' },
+        { name: 'Guides', href: '/resources/guides' },
+        { name: 'Dashboard', href: '/dashboard' },
       ],
     },
     support: {
       title: 'Support',
       links: [
-        { name: 'Help Center', href: '/help' },
         { name: 'Contact Us', href: '/contact' },
-        { name: 'Community', href: '/community' },
         { name: 'FAQ', href: '/faq' },
       ],
     },
@@ -35,8 +32,6 @@ export default function Footer() {
       links: [
         { name: 'Privacy Policy', href: '/privacy' },
         { name: 'Terms of Service', href: '/terms' },
-        { name: 'Cookie Policy', href: '/cookies' },
-        { name: 'GDPR', href: '/gdpr' },
       ],
     },
   }
@@ -65,7 +60,7 @@ export default function Footer() {
             </Link>
             <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-md">
               The most comprehensive username availability checker. Find your perfect 
-              digital identity across 500+ platforms in seconds.
+              digital identity across 1500+ platforms in seconds.
             </p>
             
             {/* Social Links */}

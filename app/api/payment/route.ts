@@ -79,14 +79,6 @@ export async function POST(request: NextRequest) {
       })
     }
     
-    return NextResponse.json({
-      success: true,
-      orderId,
-      paymentUrl,
-      amount: PAYMENT_AMOUNT,
-      message: 'Payment order created. Redirect user to payment URL.'
-    })
-    
   } catch (error) {
     console.error('Payment creation error:', error)
     return NextResponse.json(

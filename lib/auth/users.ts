@@ -168,7 +168,8 @@ export async function useCredits(userId: string, amount: number = 1): Promise<{
  * Reset daily free credits (should be called by a cron job)
  */
 export async function resetDailyCredits() {
-  for (const [id, user] of USERS_STORE.entries()) {
+  const entries = Array.from(USERS_STORE.entries())
+  for (const [id, user] of entries) {
     if (user.plan === 'free') {
       await updateUser(id, {
         credits: 10,

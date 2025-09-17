@@ -131,7 +131,7 @@ export default function ToolsPage() {
       <div className="mt-16 text-center bg-primary/5 rounded-lg p-8">
         <h2 className="text-2xl font-bold mb-4">Need More Advanced Features?</h2>
         <p className="text-muted-foreground mb-6">
-          Upgrade to Pro for API access, bulk checking, and priority support
+          Upgrade to Pro for unlimited searches, API access, bulk checking, and priority support
         </p>
         <Link
           href="/pricing"
