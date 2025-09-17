@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Dashboard - UsernameSearch.io | Manage Your Username Searches',
-  description: 'Access your UsernameSearch.io dashboard. View search history, manage API keys, track usage, and monitor username availability across 1500+ platforms.',
+  description: 'Access your UsernameSearch.io dashboard. View search history, manage API keys, track usage, and monitor username availability across 520+ platforms.',
   keywords: 'username dashboard, search history, API management, username tracking, account dashboard',
   openGraph: {
     title: 'Your Username Search Dashboard',

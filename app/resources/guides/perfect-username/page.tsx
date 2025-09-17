@@ -23,12 +23,6 @@ export const metadata: Metadata = {
       }
     ],
     type: 'article',
-    article: {
-      publishedTime: '2024-01-15T00:00:00.000Z',
-      modifiedTime: '2024-03-20T00:00:00.000Z',
-      authors: ['UsernameSearch.io Team'],
-      tags: ['username', 'social media', 'branding', 'guide'],
-    },
   },
   twitter: {
     card: 'summary_large_image',
@@ -529,7 +523,7 @@ export default function PerfectUsernameGuide() {
                   <CardContent className="p-6">
                     <h3 className="text-xl font-semibold mb-3">Free Username Checker</h3>
                     <p className="text-muted-foreground mb-4">
-                      Check your username ideas across 1500+ platforms instantly
+                      Check your username ideas across 520+ platforms instantly
                     </p>
                     <Button asChild>
                       <Link href="/">

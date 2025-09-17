@@ -10,7 +10,7 @@ import { sortResultsByRanking } from '@/lib/services/similarweb-rankings'
 
 /**
  * POST /api/check
- * 检查用户名在1500+平台的可用性
+ * 检查用户名在520+平台的可用性
  * 使用 WhatsMyName.io API
  */
 export async function POST(request: NextRequest) {
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    // 调用 WhatsMyName API（支持1500+平台）
+    // 调用 WhatsMyName API（支持520+平台）
     const apiResponse = await checkUsernameViaAPI(username, rescan)
     
     // 按流量排名排序结果
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
       totalChecked: sortedResults.length,
       totalAvailable: sortedResults.filter(r => !r.isExist).length,
       totalTaken: sortedResults.filter(r => r.isExist).length,
-      totalSites: getTotalSitesCount(), // 显示支持的总站点数（1500+）
+      totalSites: getTotalSitesCount(), // 显示支持的总站点数（520+）
     }
     
     // 按分类分组结果

@@ -14,7 +14,7 @@ export default function WhatsMyNamePage() {
             "name": "WhatsMyName App",
             "applicationCategory": "UtilitiesApplication",
             "operatingSystem": "Web",
-            "description": "WhatsMyName app is a powerful username availability checker that searches across 1500+ social media platforms and websites instantly.",
+            "description": "WhatsMyName app is a powerful username availability checker that searches across 520+ social media platforms and websites instantly.",
             "url": "https://usernamesearch.io/whatsmyname",
             "aggregateRating": {
               "@type": "AggregateRating",
@@ -37,7 +37,7 @@ export default function WhatsMyNamePage() {
               }
             },
             "featureList": [
-              "Check username availability on 1500+ platforms",
+              "Check username availability on 520+ platforms",
               "Real-time search results",
               "Free to use",
               "No registration required",
@@ -80,7 +80,7 @@ export default function WhatsMyNamePage() {
         <section className="text-center py-12 md:py-20">
           <div className="mb-6">
             <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 mb-4">
-              Official WhatsMyName App
+              #1 Official WhatsMyName App Alternatives
             </Badge>
           </div>
           
@@ -88,7 +88,7 @@ export default function WhatsMyNamePage() {
             <span className="text-primary">WhatsMyName</span> App
           </h1>
           <h2 className="text-2xl md:text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
-            Check Username Availability on 1500+ Platforms Instantly
+            Check Username Availability on 520+ Platforms Instantly
           </h2>
           <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
             The original WhatsMyName app helps you find and secure your perfect username across all major 
@@ -101,12 +101,12 @@ export default function WhatsMyNamePage() {
           {/* Trust Indicators */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16 max-w-4xl mx-auto">
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">1500+</div>
+              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">520+</div>
               <div className="text-gray-600 dark:text-gray-300">Platforms</div>
             </div>
             <div className="text-center">
               <div className="text-3xl md:text-4xl font-bold text-primary mb-2">5M+</div>
-              <div className="text-gray-600 dark:text-gray-300">Users</div>
+              <div className="text-gray-600 dark:text-gray-300">Searches Completed</div>
             </div>
             <div className="text-center">
               <div className="text-3xl md:text-4xl font-bold text-primary mb-2">99.9%</div>
@@ -133,7 +133,7 @@ export default function WhatsMyNamePage() {
             <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
               Whether you're a content creator, business owner, or just someone who wants a consistent online 
               presence, the WhatsMyName app makes it easy to check if your desired username is available on 
-              Instagram, TikTok, Twitter, YouTube, and 1500+ other platforms - all with a single search.
+              Instagram, TikTok, Twitter, YouTube, and 520+ other platforms - all with a single search.
             </p>
           </div>
         </section>
@@ -155,7 +155,7 @@ export default function WhatsMyNamePage() {
               </h3>
               <p className="text-gray-600 dark:text-gray-300">
                 WhatsMyName checks your username on all major platforms including Instagram, TikTok, Twitter, 
-                Facebook, LinkedIn, GitHub, and 1500+ more sites.
+                Facebook, LinkedIn, GitHub, and 520+ more sites.
               </p>
             </div>
             
@@ -268,7 +268,7 @@ export default function WhatsMyNamePage() {
                   </h3>
                   <p className="text-gray-600 dark:text-gray-300">
                     Hit the search button and WhatsMyName app will instantly check your username across 
-                    1500+ platforms simultaneously.
+                    520+ platforms simultaneously.
                   </p>
                 </div>
               </div>
@@ -344,7 +344,7 @@ export default function WhatsMyNamePage() {
                 Is WhatsMyName app really free?
               </h3>
               <p className="text-gray-600 dark:text-gray-300">
-                Yes! WhatsMyName is 100% free to use. You can check unlimited usernames across all 1500+ 
+                Yes! WhatsMyName is 100% free to use. You can check unlimited usernames across all 520+ 
                 platforms without any cost or registration required.
               </p>
             </div>
@@ -426,7 +426,7 @@ export default function WhatsMyNamePage() {
                   "name": "What is WhatsMyName app?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "WhatsMyName app is a free username availability checker that searches across 1500+ social media platforms and websites instantly. It helps you find and secure consistent usernames across the internet."
+                    "text": "WhatsMyName app is a free username availability checker that searches across 520+ social media platforms and websites instantly. It helps you find and secure consistent usernames across the internet."
                   }
                 },
                 {
@@ -434,7 +434,7 @@ export default function WhatsMyNamePage() {
                   "name": "Is WhatsMyName app free to use?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Yes! WhatsMyName is 100% free to use. You can check unlimited usernames across all 1500+ platforms without any cost or registration required."
+                    "text": "Yes! WhatsMyName is 100% free to use. You can check unlimited usernames across all 520+ platforms without any cost or registration required."
                   }
                 },
                 {

@@ -2,11 +2,11 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Pricing - UsernameSearch.io | Pro Plans for Advanced Username Checking',
-  description: 'Choose the perfect plan for your username checking needs. Get access to 1500+ platforms, API access, bulk checking, and priority support with our Pro plans.',
+  description: 'Choose the perfect plan for your username checking needs. Get access to 520+ platforms, API access, bulk checking, and priority support with our Pro plans.',
   keywords: 'username checker pricing, username search plans, social media username API, bulk username checking, pro username tools',
   openGraph: {
     title: 'Affordable Username Checking Plans - UsernameSearch.io',
-    description: 'From free basic checks to enterprise API access. Find the perfect plan for checking username availability across 1500+ platforms.',
+    description: 'From free basic checks to enterprise API access. Find the perfect plan for checking username availability across 520+ platforms.',
     url: 'https://usernamesearch.io/pricing',
     siteName: 'UsernameSearch.io',
     images: [
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Username Checker Pricing Plans',
-    description: 'Free to Pro plans. Check username availability on 1500+ platforms.',
+    description: 'Free to Pro plans. Check username availability on 520+ platforms.',
     images: ['https://usernamesearch.io/twitter-pricing.png'],
   },
   alternates: {
@@ -45,7 +45,7 @@ export default function PricingLayout({
             "@context": "https://schema.org",
             "@type": "Product",
             "name": "UsernameSearch.io Pro",
-            "description": "Professional username availability checker for 1500+ platforms",
+            "description": "Professional username availability checker for 520+ platforms",
             "brand": {
               "@type": "Brand",
               "name": "UsernameSearch.io"
@@ -56,7 +56,7 @@ export default function PricingLayout({
                 "name": "Free Plan",
                 "price": "0",
                 "priceCurrency": "USD",
-                "description": "Check username availability on all 1500+ platforms with daily limits",
+                "description": "Check username availability on all 520+ platforms with daily limits",
                 "availability": "https://schema.org/InStock"
               },
               {

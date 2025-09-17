@@ -133,7 +133,7 @@ Create dedicated pages for high-traffic searches:
 
 Each page should:
 - Target platform-specific keywords
-- Include 500+ words of unique content
+- Include 520+ words of unique content
 - Show real-time availability checking
 - Link to main checker tool
 

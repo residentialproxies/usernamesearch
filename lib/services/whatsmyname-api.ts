@@ -1,6 +1,6 @@
 /**
  * WhatsMyName API Service
- * 调用 whatsmyname.io API 检查用户名在1500+平台的可用性
+ * 调用 whatsmyname.io API 检查用户名在1520+平台的可用性
  */
 
 import siteData from '@/lib/data/sites.json'
@@ -33,7 +33,7 @@ interface SiteInfo {
 
 /**
  * 调用 WhatsMyName API 检查用户名
- * 支持1500+平台的实时检查
+ * 支持1520+平台的实时检查
  */
 export async function checkUsernameViaAPI(
   username: string,

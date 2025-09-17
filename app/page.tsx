@@ -2,14 +2,14 @@ import type { Metadata } from 'next'
 import SearchInterface from '@/components/search/search-interface'
 
 export const metadata: Metadata = {
-  title: 'UsernameSearch.io - Check Username Availability Across 1500+ Platforms Instantly',
-  description: 'Free username availability checker for 1500+ social media platforms. Find your perfect username for Instagram, TikTok, Twitter/X, and more. Instant results, no registration required.',
+  title: 'UsernameSearch.io - Check Username Availability Across 520+ Platforms Instantly',
+  description: 'Free username availability checker for 520+ social media platforms. 20 free API searches for registered users. Find your perfect username for Instagram, TikTok, Twitter/X, and more.',
   keywords: 'username checker, username availability, social media username, check username, username search, instagram username, tiktok username, twitter username, username generator, brand name checker',
   openGraph: {
-    title: 'Check Username Availability on 1500+ Platforms - UsernameSearch.io',
-    description: 'Instantly check if your desired username is available across 1500+ social media platforms, gaming sites, and online services. Free tool with real-time results.',
+    title: 'Check Username Availability on 520+ Platforms - UsernameSearch.io',
+    description: 'Instantly check if your desired username is available across 520+ social media platforms, gaming sites, and online services. 20 free API searches for registered users.',
     url: 'https://usernamesearch.io',
-    siteName: 'UsernameSearch.io',
+    siteName: 'Username Search',
     images: [
       {
         url: 'https://usernamesearch.io/og-image.png',
@@ -23,8 +23,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Check Username Availability on 1500+ Platforms',
-    description: 'Free username checker for social media. Instant results across Instagram, TikTok, Twitter, and 1500+ platforms.',
+    title: 'UsernameSearch.io - Check Username Availability on 520+ Platforms',
+    description: 'Free username checker for social media. 20 free API searches for registered users across Instagram, TikTok, Twitter, and 520+ platforms.',
     creator: '@usernamesearch',
     images: ['https://usernamesearch.io/twitter-image.png'],
   },
@@ -54,7 +54,7 @@ export default function HomePage() {
             "@context": "https://schema.org",
             "@type": "WebSite",
             "name": "UsernameSearch.io",
-            "description": "Check username availability across 1500+ platforms instantly",
+            "description": "Check username availability across 520+ platforms instantly",
             "url": "https://usernamesearch.io",
             "potentialAction": {
               "@type": "SearchAction",
@@ -85,10 +85,10 @@ export default function HomePage() {
         <section className="text-center py-12 md:py-20">
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
             Find Your Perfect{' '}
-            <span className="text-primary">Username</span>
+            <span className="text-primary">Social Username</span>
           </h1>
           <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
-            Check username availability across 1500+ social media platforms, websites, 
+            Check username availability across 520+ social media platforms, websites, 
             and services instantly. Secure your digital identity today.
           </p>
           
@@ -98,11 +98,11 @@ export default function HomePage() {
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">1500+</div>
+              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">520+</div>
               <div className="text-gray-600 dark:text-gray-300">Platforms Checked</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">1M+</div>
+              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">5M+</div>
               <div className="text-gray-600 dark:text-gray-300">Searches Completed</div>
             </div>
             <div className="text-center">
@@ -175,7 +175,7 @@ export default function HomePage() {
                   "name": "How many platforms does UsernameSearch.io check?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "UsernameSearch.io checks username availability across over 1500+ social media platforms, gaming sites, and online services including Instagram, TikTok, Twitter/X, YouTube, LinkedIn, and many more."
+                    "text": "UsernameSearch.io checks username availability across over 520+ social media platforms, gaming sites, and online services including Instagram, TikTok, Twitter/X, YouTube, LinkedIn, and many more."
                   }
                 },
                 {
@@ -183,7 +183,7 @@ export default function HomePage() {
                   "name": "Is UsernameSearch.io free to use?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Yes! We offer a free tier that checks all 1500+ platforms with up to 10 daily searches. For unlimited searches and additional features like API access and bulk checking, you can upgrade to our Pro plan."
+                    "text": "Yes! We offer a free tier that checks all 520+ platforms with up to 10 daily searches. For unlimited searches and additional features like API access and bulk checking, you can upgrade to our Pro plan."
                   }
                 },
                 {

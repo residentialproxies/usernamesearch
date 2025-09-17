@@ -20,7 +20,7 @@ export default function APIPortalPage() {
   const features = [
     {
       icon: Globe,
-      title: '1500+ Platforms',
+      title: '520+ Platforms',
       description: 'Check username availability across all major social media and web platforms'
     },
     {

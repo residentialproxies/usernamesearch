@@ -1,4 +1,9 @@
-import { SearchResult } from '@/types'
+interface SearchResult {
+  url: string
+  source: string
+  isExist: boolean
+  category?: string
+}
 
 export interface ExportData {
   username: string

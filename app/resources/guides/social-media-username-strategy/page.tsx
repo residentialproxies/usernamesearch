@@ -251,7 +251,7 @@ export default function UsernameStrategyGuide() {
         <h3 className="text-2xl font-semibold mt-8 mb-4">The Comprehensive Availability Check</h3>
 
         <p>
-          Start with a comprehensive availability check across all platforms simultaneously. Tools like UsernameSearch.io can check 1500+ platforms instantly, saving hours of manual searching. Check not just your primary platforms but also secondary ones you might use in the future. Securing your username everywhere prevents impersonation and preserves future options.
+          Start with a comprehensive availability check across all platforms simultaneously. Tools like UsernameSearch.io can check 520+ platforms instantly, saving hours of manual searching. Check not just your primary platforms but also secondary ones you might use in the future. Securing your username everywhere prevents impersonation and preserves future options.
         </p>
 
         <p>
@@ -610,7 +610,7 @@ export default function UsernameStrategyGuide() {
         <div className="bg-primary/10 rounded-lg p-8 mt-12 text-center">
           <h3 className="text-2xl font-bold mb-4">Ready to Secure Your Perfect Username?</h3>
           <p className="text-lg mb-6">
-            Check availability across 1500+ platforms instantly and start building your consistent digital presence today.
+            Check availability across 520+ platforms instantly and start building your consistent digital presence today.
           </p>
           <div className="flex gap-4 justify-center">
             <Button size="lg" asChild>
@@ -657,7 +657,7 @@ export default function UsernameStrategyGuide() {
               <CardContent className="pt-6">
                 <h4 className="font-semibold mb-2">Instagram Username Ideas</h4>
                 <p className="text-sm text-muted-foreground mb-4">
-                  500+ creative Instagram username ideas and tips for every niche.
+                  520+ creative Instagram username ideas and tips for every niche.
                 </p>
                 <Link href="/resources/guides/instagram-username-ideas" className="text-primary hover:underline text-sm">
                   Read Guide →

@@ -38,6 +38,7 @@ export interface UsernameGenerationResult {
     filtered: number;
     validUsernames: number;
     generationTime: number;
+    usingFallback?: boolean;
   };
 }
 
@@ -142,6 +143,70 @@ class AIUsernameGenerator {
     systemPrompt += `artlover\n`;
 
     return systemPrompt;
+  }
+
+  /**
+   * Fallback username generation using predefined patterns
+   */
+  private generateFallbackUsernames(request: GenerateUsernamesRequest): string[] {
+    const { keywords, style, count } = request;
+    const keywordList = keywords || [];
+    
+    // Predefined suffixes and prefixes based on style
+    const stylePrefixes = {
+      creative: ['artistic', 'magic', 'dream', 'mystic', 'epic'],
+      professional: ['pro', 'expert', 'ace', 'prime', 'elite'],
+      gaming: ['game', 'pro', 'epic', 'legend', 'master'],
+      tech: ['dev', 'code', 'tech', 'cyber', 'digital'],
+      casual: ['cool', 'fun', 'nice', 'happy', 'chill'],
+      artistic: ['art', 'creative', 'design', 'paint', 'sketch']
+    };
+    
+    const styleSuffixes = {
+      creative: ['x', '2024', 'pro', 'star', 'dream'],
+      professional: ['pro', 'expert', '2024', 'official', 'biz'],
+      gaming: ['gamer', 'pro', 'x', 'legend', 'master'],
+      tech: ['dev', 'tech', 'code', 'byte', 'bit'],
+      casual: ['cool', 'fun', 'awesome', 'nice', 'great'],
+      artistic: ['art', 'creative', 'studio', 'design', 'gallery']
+    };
+    
+    const prefixes = stylePrefixes[style as keyof typeof stylePrefixes] || stylePrefixes.creative;
+    const suffixes = styleSuffixes[style as keyof typeof styleSuffixes] || styleSuffixes.creative;
+    
+    const usernames: string[] = [];
+    const used = new Set<string>();
+    
+    // Generate combinations
+    for (let i = 0; i < count && usernames.length < count; i++) {
+      let username = '';
+      
+      if (keywordList.length > 0 && Math.random() > 0.3) {
+        // Use keywords
+        const keyword = keywordList[Math.floor(Math.random() * keywordList.length)];
+        if (Math.random() > 0.5) {
+          username = keyword + suffixes[Math.floor(Math.random() * suffixes.length)];
+        } else {
+          username = prefixes[Math.floor(Math.random() * prefixes.length)] + keyword;
+        }
+      } else {
+        // Generate random combination
+        username = prefixes[Math.floor(Math.random() * prefixes.length)] + 
+                  suffixes[Math.floor(Math.random() * suffixes.length)];
+      }
+      
+      // Add random number occasionally
+      if (Math.random() > 0.7) {
+        username += Math.floor(Math.random() * 99) + 1;
+      }
+      
+      if (!used.has(username) && this.isValidUsername(username)) {
+        used.add(username);
+        usernames.push(username);
+      }
+    }
+    
+    return usernames;
   }
 
   /**
@@ -252,15 +317,23 @@ class AIUsernameGenerator {
       // Validate request
       const validatedRequest = GenerateUsernamesRequestSchema.parse(request);
       
-      // Create prompt for Gemini
-      const prompt = this.createPrompt(validatedRequest);
+      let usernames: string[] = [];
+      let totalGenerated = 0;
+      let usingFallback = false;
       
-      // Make API call
-      const response = await this.callGeminiAPI(prompt);
-      
-      // Parse response
-      let usernames = this.parseUsernameResponse(response);
-      const totalGenerated = usernames.length;
+      try {
+        // Try to use Gemini AI first
+        const prompt = this.createPrompt(validatedRequest);
+        const response = await this.callGeminiAPI(prompt);
+        usernames = this.parseUsernameResponse(response);
+        totalGenerated = usernames.length;
+      } catch (aiError) {
+        console.warn('AI generation failed, using fallback method:', aiError);
+        // Use fallback generation
+        usernames = this.generateFallbackUsernames(validatedRequest);
+        totalGenerated = usernames.length;
+        usingFallback = true;
+      }
       
       // Filter by avoid list
       if (validatedRequest.avoid) {
@@ -282,7 +355,8 @@ class AIUsernameGenerator {
           totalGenerated,
           filtered: totalGenerated - usernames.length,
           validUsernames: validUsernames.length,
-          generationTime: endTime - startTime
+          generationTime: endTime - startTime,
+          usingFallback
         }
       };
 

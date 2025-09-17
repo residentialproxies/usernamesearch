@@ -9,17 +9,17 @@ export default function PricingPage() {
     {
       name: 'Free',
       price: '$0',
-      description: 'Perfect for personal use',
+      description: 'Perfect for testing',
       features: [
-        'Check all 1500+ platforms',
-        '10 searches per day',
+        'Check all 520+ platforms',
+        '20 API searches (after registration)',
         'Real-time availability checking',
         'Category filtering',
         'Basic search history',
       ],
       limitations: [
-        'Daily search limit',
-        'No API access',
+        '20 searches total',
+        'No additional API access',
         'No bulk checking',
         'No export features',
       ],
@@ -29,11 +29,11 @@ export default function PricingPage() {
     {
       name: 'Pro',
       price: '$10',
-      description: 'Unlimited searches + API',
+      description: '500 API searches',
       features: [
-        'Check all 1500+ platforms',
-        'Unlimited daily searches',
-        '500 API requests included',
+        'Check all 520+ platforms',
+        '500 API searches',
+        '1 request per second rate limit',
         'Bulk username checking',
         'Export results (CSV/JSON)',
         'Advanced filtering & search',
@@ -133,22 +133,23 @@ export default function PricingPage() {
           <div>
             <h3 className="font-semibold mb-2">How do API credits work?</h3>
             <p className="text-muted-foreground">
-              Each username check across our 400+ platforms counts as 1 API request. 
-              With the Pro plan, you get 500 requests for $10, which typically lasts 
-              1-2 months for most users.
+              Each username check across our 520+ platforms counts as 1 API request. 
+              With the Pro plan, you get 500 requests for $10. Each request is rate-limited 
+              to 1 per second to prevent abuse.
             </p>
           </div>
           <div>
             <h3 className="font-semibold mb-2">Can I get a refund?</h3>
             <p className="text-muted-foreground">
-              Yes, we offer a 30-day money-back guarantee. If you're not satisfied 
-              with the Pro plan, contact support for a full refund.
+              No, registered users get 20 free API calls for testing. Since this is not 
+              a monthly subscription service, we do not offer refunds.
             </p>
           </div>
           <div>
             <h3 className="font-semibold mb-2">Do credits expire?</h3>
             <p className="text-muted-foreground">
-              No, your API credits never expire. Use them at your own pace.
+              No, your API credits never expire. Use them at your own pace with 
+              the 1 request per second rate limit.
             </p>
           </div>
         </div>

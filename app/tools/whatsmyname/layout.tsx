@@ -1,12 +1,12 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'WhatsMyName App - Check Username Availability on 1500+ Sites | Free Username Search Tool',
-  description: 'WhatsMyName app is the ultimate username availability checker. Search across 1500+ social media platforms instantly. Free WhatsMyName tool for checking if your username is available on Instagram, TikTok, Twitter, and more.',
+  title: 'WhatsMyName App - Check Username Availability on 520+ Sites | Free Username Search Tool',
+  description: 'WhatsMyName app is the ultimate username availability checker. Search across 520+ social media platforms instantly. Free WhatsMyName tool for checking if your username is available on Instagram, TikTok, Twitter, and more.',
   keywords: 'whatsmyname app, whatsmyname, what is my name app, whats my name tool, username checker, username search, whatsmyname username checker, whatsmyname social media, whatsmyname.app, check my username, username availability checker, social media username checker, whatsmyname online',
   openGraph: {
-    title: 'WhatsMyName App - Free Username Availability Checker for 1500+ Platforms',
-    description: 'The original WhatsMyName app for checking username availability. Search your desired username across 1500+ social media platforms, gaming sites, and online services instantly.',
+    title: 'WhatsMyName App - Free Username Availability Checker for 520+ Platforms',
+    description: 'The original WhatsMyName app for checking username availability. Search your desired username across 520+ social media platforms, gaming sites, and online services instantly.',
     url: 'https://usernamesearch.io/whatsmyname',
     siteName: 'WhatsMyName App - UsernameSearch.io',
     images: [
@@ -22,8 +22,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'WhatsMyName App - Check Username on 1500+ Platforms',
-    description: 'Free WhatsMyName tool to check if your username is available across social media. Instant results for Instagram, TikTok, Twitter, and 1500+ sites.',
+    title: 'WhatsMyName App - Check Username on 520+ Platforms',
+    description: 'Free WhatsMyName tool to check if your username is available across social media. Instant results for Instagram, TikTok, Twitter, and 520+ sites.',
     creator: '@whatsmynameapp',
     images: ['https://usernamesearch.io/whatsmyname-twitter.png'],
   },

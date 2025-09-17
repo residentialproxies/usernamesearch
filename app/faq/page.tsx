@@ -34,15 +34,15 @@ const faqCategories = [
     questions: [
       {
         question: 'What is UsernameSearch.io?',
-        answer: 'UsernameSearch.io is the most comprehensive username availability checker that allows you to instantly check if your desired username is available across 1500+ social media platforms, gaming sites, and online services. We use the WhatsMyName API to provide real-time, accurate results.'
+        answer: 'UsernameSearch.io is the most comprehensive username availability checker that allows you to instantly check if your desired username is available across 520+ social media platforms, gaming sites, and online services. We use the WhatsMyName API to provide real-time, accurate results.'
       },
       {
         question: 'How many platforms do you support?',
-        answer: 'We currently support over 1500+ platforms including all major social media sites (Instagram, Twitter/X, TikTok, Facebook), gaming platforms (Steam, Xbox, PlayStation), professional networks (LinkedIn, GitHub), and hundreds more niche platforms.'
+        answer: 'We currently support over 520+ platforms including all major social media sites (Instagram, Twitter/X, TikTok, Facebook), gaming platforms (Steam, Xbox, PlayStation), professional networks (LinkedIn, GitHub), and hundreds more niche platforms.'
       },
       {
         question: 'Is UsernameSearch.io free to use?',
-        answer: 'Yes! We offer a free tier that allows you to check username availability on all 1500+ platforms with up to 10 daily searches. For unlimited daily searches, API access, and bulk checking features, you can upgrade to our Pro plan.'
+        answer: 'Yes! We offer a free tier with 20 API searches for registered users to check username availability across all 520+ platforms. For additional searches, API access, and bulk checking features, you can upgrade to our Pro plan.'
       },
       {
         question: 'How accurate are the results?',
@@ -60,7 +60,7 @@ const faqCategories = [
       },
       {
         question: 'Can I check multiple usernames at once?',
-        answer: 'With our Pro plan, you can use the bulk checking feature to check multiple usernames simultaneously. This is perfect for brands managing multiple products or individuals with various online personas.'
+        answer: 'With our Pro plan, you can use the bulk checking feature to check multiple usernames simultaneously. Each request counts as one API call and checks all 520+ platforms. This is perfect for brands managing multiple products or individuals with various online personas.'
       },
       {
         question: 'What do the different colors mean in results?',
@@ -86,7 +86,7 @@ const faqCategories = [
       },
       {
         question: 'What\'s included with API access?',
-        answer: 'API access includes 500 requests with the Pro plan. You get access to all endpoints including username checking, platform information, and bulk checking capabilities. Full documentation is available in our API docs.'
+        answer: 'API access includes 500 requests with the Pro plan. Each request checks username availability across all 520+ platforms. You get access to all endpoints including username checking, platform information, and bulk checking capabilities. Full documentation is available in our API docs.'
       },
       {
         question: 'What programming languages do you support?',
@@ -94,7 +94,7 @@ const faqCategories = [
       },
       {
         question: 'Is there a rate limit on the API?',
-        answer: 'Pro accounts are limited to 10 requests per second to ensure service quality. Enterprise customers can request higher rate limits based on their needs.'
+        answer: 'All users are limited to 1 request per second per API key to ensure service quality and prevent abuse. Each request checks all 520+ platforms simultaneously. Enterprise customers can request higher rate limits based on their needs.'
       }
     ]
   },
@@ -112,7 +112,7 @@ const faqCategories = [
       },
       {
         question: 'Can I get a refund?',
-        answer: 'Due to the nature of our service (instant access to data), we generally don\'t offer refunds. However, if you experience technical issues preventing you from using the service, please contact us and we\'ll work to resolve it.'
+        answer: 'No, registered users get 20 free API calls for testing. Since this is not a monthly subscription service, we do not offer refunds. Each API call checks all 520+ platforms to provide comprehensive results.'
       },
       {
         question: 'Do you offer discounts for students or non-profits?',

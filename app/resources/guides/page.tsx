@@ -171,7 +171,7 @@ export default function GuidesPage() {
             Ready to Claim Your Username?
           </h2>
           <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Use our powerful tools to check username availability across 1500+ platforms 
+            Use our powerful tools to check username availability across 520+ platforms 
             and secure your digital identity today.
           </p>
           <div className="flex gap-4 justify-center">

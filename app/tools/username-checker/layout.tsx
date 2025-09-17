@@ -2,11 +2,11 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Advanced Username Checker - Bulk Check Availability | UsernameSearch.io',
-  description: 'Advanced username availability checker with bulk checking, filters, and export options. Check multiple usernames across 1500+ platforms simultaneously.',
+  description: 'Advanced username availability checker with bulk checking, filters, and export options. Check multiple usernames across 520+ platforms simultaneously.',
   keywords: 'bulk username checker, advanced username search, multiple username check, username availability tool, batch username checker',
   openGraph: {
     title: 'Advanced Username Checker - Bulk Availability Check',
-    description: 'Check multiple usernames across 1500+ platforms with advanced filtering and export options.',
+    description: 'Check multiple usernames across 520+ platforms with advanced filtering and export options.',
     url: 'https://usernamesearch.io/tools/username-checker',
     siteName: 'UsernameSearch.io',
     images: [

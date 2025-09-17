@@ -19,13 +19,13 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'About UsernameSearch.io - The Most Comprehensive Username Checker',
-  description: 'Learn about UsernameSearch.io, the leading username availability checker supporting 1500+ platforms. Our mission, technology, and commitment to helping you secure your digital identity.',
+  description: 'Learn about UsernameSearch.io, the leading username availability checker supporting 520+ platforms. Our mission, technology, and commitment to helping you secure your digital identity.',
   keywords: 'about usernamesearch, username checker company, username availability tool, digital identity platform',
 }
 
 export default function AboutPage() {
   const stats = [
-    { value: '1500+', label: 'Platforms Supported' },
+    { value: '520+', label: 'Platforms Supported' },
     { value: '1M+', label: 'Usernames Checked' },
     { value: '99.9%', label: 'Uptime' },
     { value: '24/7', label: 'Monitoring' },
@@ -40,7 +40,7 @@ export default function AboutPage() {
     {
       icon: Zap,
       title: 'Speed & Accuracy',
-      description: 'Real-time checking across 1500+ platforms with industry-leading accuracy and response times.'
+      description: 'Real-time checking across 520+ platforms with industry-leading accuracy and response times.'
     },
     {
       icon: Users,
@@ -63,7 +63,7 @@ export default function AboutPage() {
     {
       year: '2024 Q1',
       title: 'WhatsMyName Integration',
-      description: 'Integrated with the WhatsMyName API to support 1500+ platforms.'
+      description: 'Integrated with the WhatsMyName API to support 520+ platforms.'
     },
     {
       year: '2024 Q2',
@@ -130,7 +130,7 @@ export default function AboutPage() {
               </p>
               <p className="text-lg leading-relaxed">
                 Today, UsernameSearch.io helps thousands of individuals, creators, and 
-                businesses secure their digital identity across 1500+ platforms. We're 
+                businesses secure their digital identity across 520+ platforms. We're 
                 proud to be part of your journey in building a consistent online presence.
               </p>
             </CardContent>
@@ -177,7 +177,7 @@ export default function AboutPage() {
                 <ul className="space-y-3">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
-                    <span>WhatsMyName API integration for 1500+ platforms</span>
+                    <span>WhatsMyName API integration for 520+ platforms</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />

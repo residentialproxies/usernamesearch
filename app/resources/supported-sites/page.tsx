@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { Search, Filter, ExternalLink, ChevronDown, Shield } from 'lucide-react'
+import { Search, Filter, ExternalLink, ChevronDown, Shield, Lock } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
 interface Site {

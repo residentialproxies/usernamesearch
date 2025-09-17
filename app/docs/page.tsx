@@ -53,7 +53,7 @@ export default function ApiDocsPage() {
         </div>
         <h1 className="text-4xl font-bold mb-4">{apiDocs.title}</h1>
         <p className="text-lg text-muted-foreground">
-          Powerful API for checking username availability across 1500+ platforms
+          Powerful API for checking username availability across 520+ platforms
         </p>
         <div className="flex gap-4 justify-center mt-6">
           <Badge variant="outline" className="px-3 py-1">

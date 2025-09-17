@@ -192,7 +192,7 @@ export default function UsernameRecoveryGuidePage() {
               <Link href="/" className="text-primary hover:underline">
                 our username checker
               </Link>{' '}
-              to verify availability across all 1500+ platforms. Sometimes the username 
+              to verify availability across all 520+ platforms. Sometimes the username 
               might be available on alternative platforms you haven't considered.
             </AlertDescription>
           </Alert>
@@ -717,7 +717,7 @@ export default function UsernameRecoveryGuidePage() {
               Start Your Username Recovery Journey
             </h2>
             <p className="mb-6 text-primary-foreground/90">
-              Check if your desired username is truly unavailable across all 1500+ platforms. 
+              Check if your desired username is truly unavailable across all 520+ platforms. 
               You might find it's available on platforms you haven't checked yet!
             </p>
             <div className="flex gap-4 justify-center">

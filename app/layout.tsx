@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Username Search - Check Username Availability Across Platforms',
-  description: 'Instantly check username availability across 500+ social media platforms, websites, and services. Find the perfect username for your brand or personal use.',
+  description: 'Instantly check username availability across 520+ social media platforms, websites, and services. Find the perfect username for your brand or personal use.',
   keywords: 'username search, username availability, social media usernames, brand names, handle checker',
   authors: [{ name: 'Username Search' }],
   creator: 'Username Search',
@@ -34,13 +34,13 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: 'https://usernamesearch.io',
     title: 'Username Search - Check Username Availability',
-    description: 'Instantly check username availability across 500+ social media platforms, websites, and services.',
+    description: 'Instantly check username availability across 520+ social media platforms, websites, and services.',
     siteName: 'Username Search',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Username Search - Check Username Availability',
-    description: 'Instantly check username availability across 500+ social media platforms, websites, and services.',
+    description: 'Instantly check username availability across 520+ social media platforms, websites, and services.',
     creator: '@usernamesearch',
   },
   robots: {

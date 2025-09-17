@@ -8,11 +8,11 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 
 export const metadata: Metadata = {
   title: 'Brand Consistency Across Platforms: Complete Username Strategy Guide | UsernameSearch.io',
-  description: 'Master cross-platform brand consistency with our expert guide. Learn how to maintain unified usernames, handle variations, and build a recognizable online presence across 1500+ platforms.',
+  description: 'Master cross-platform brand consistency with our expert guide. Learn how to maintain unified usernames, handle variations, and build a recognizable online presence across 520+ platforms.',
   keywords: 'brand consistency, cross-platform branding, username strategy, online brand identity, social media consistency, username management, digital branding guide',
   openGraph: {
     title: 'The Ultimate Guide to Brand Consistency Across All Platforms',
-    description: 'Build a unified online presence with consistent usernames. Expert strategies for managing your brand across 1500+ platforms.',
+    description: 'Build a unified online presence with consistent usernames. Expert strategies for managing your brand across 520+ platforms.',
     url: 'https://usernamesearch.io/resources/guides/brand-consistency',
     siteName: 'UsernameSearch.io',
     images: [
@@ -24,12 +24,6 @@ export const metadata: Metadata = {
       }
     ],
     type: 'article',
-    article: {
-      publishedTime: '2024-02-10T00:00:00.000Z',
-      modifiedTime: '2024-03-25T00:00:00.000Z',
-      authors: ['UsernameSearch.io Brand Team'],
-      tags: ['branding', 'username strategy', 'social media', 'digital identity'],
-    },
   },
   twitter: {
     card: 'summary_large_image',
@@ -98,7 +92,7 @@ export default function BrandConsistencyGuide() {
             <span className="text-primary block mt-2">Your Complete Username Strategy</span>
           </h1>
           <p className="text-xl text-muted-foreground mb-6">
-            Learn how to build and maintain a consistent brand identity across 1500+ online platforms, 
+            Learn how to build and maintain a consistent brand identity across 520+ online platforms, 
             handle username variations strategically, and create a memorable digital presence.
           </p>
           

@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
         totalCredits: keyStats?.credits || 0
       },
       totalSitesSupported: getTotalSitesCount(),
-      message: 'Pro API - Full access to 1500+ platforms'
+      message: 'Pro API - Full access to 520+ platforms'
     })
     
   } catch (error) {

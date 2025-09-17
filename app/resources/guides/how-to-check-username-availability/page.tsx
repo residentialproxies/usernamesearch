@@ -22,11 +22,11 @@ import {
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'How to Check Username Availability Across 1500+ Platforms - Complete Guide',
+  title: 'How to Check Username Availability Across 520+ Platforms - Complete Guide',
   description: 'Learn how to efficiently check username availability across social media, gaming, and professional platforms. Comprehensive guide with tools, tips, and strategies.',
   keywords: 'username availability checker, check username, social media username, username search, online identity',
   openGraph: {
-    title: 'How to Check Username Availability Across 1500+ Platforms',
+    title: 'How to Check Username Availability Across 520+ Platforms',
     description: 'Master the art of checking username availability with our comprehensive guide. Tools, tips, and strategies included.',
     type: 'article',
     publishedTime: '2024-01-15T00:00:00.000Z',
@@ -48,7 +48,7 @@ export default function HowToCheckUsernameGuide() {
         </div>
         
         <h1 className="text-4xl font-bold mb-4">
-          How to Check Username Availability Across 1500+ Platforms
+          How to Check Username Availability Across 520+ Platforms
         </h1>
         
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -62,7 +62,7 @@ export default function HowToCheckUsernameGuide() {
           </div>
           <div className="flex items-center gap-1">
             <Globe className="h-4 w-4" />
-            <span>1500+ Platforms</span>
+            <span>520+ Platforms</span>
           </div>
         </div>
       </header>
@@ -86,7 +86,7 @@ export default function HowToCheckUsernameGuide() {
               <h3 className="font-semibold mb-2">Quick Start: Check Your Username Now</h3>
               <p className="text-muted-foreground mb-4">
                 Ready to check if your desired username is available? Use our powerful tool to search 
-                across 1500+ platforms instantly.
+                across 520+ platforms instantly.
               </p>
               <Button asChild>
                 <Link href="/">
@@ -254,7 +254,7 @@ export default function HowToCheckUsernameGuide() {
             
             <div className="flex gap-2 mb-3">
               <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
-              <span className="text-sm">Check 1500+ platforms in seconds</span>
+              <span className="text-sm">Check 520+ platforms in seconds</span>
             </div>
             <div className="flex gap-2 mb-3">
               <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
@@ -352,7 +352,7 @@ export default function HowToCheckUsernameGuide() {
         <Alert>
           <Lightbulb className="h-4 w-4" />
           <AlertDescription>
-            <strong>Pro Tip:</strong> Use our Pro plan to check all 1500+ platforms at once and 
+            <strong>Pro Tip:</strong> Use our Pro plan to check all 520+ platforms at once and 
             get priority access to new platform additions. Perfect for businesses and influencers 
             managing multiple brands.
           </AlertDescription>
@@ -700,7 +700,7 @@ export default function HowToCheckUsernameGuide() {
             <p className="text-muted-foreground mb-6">
               Now that you understand how to effectively check username availability, it's time to 
               take action. Use UsernameSearch.io to instantly check your desired username across 
-              1500+ platforms and secure your online presence today.
+              520+ platforms and secure your online presence today.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">

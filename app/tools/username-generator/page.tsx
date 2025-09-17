@@ -51,14 +51,19 @@ export default function UsernameGeneratorPage() {
     
     setLoading(true)
     try {
+      // Create prompt based on keywords and preferences
+      let prompt = `Generate usernames based on: ${keywords.trim()}`
+      if (preferences.trim()) {
+        prompt += `. Additional requirements: ${preferences.trim()}`
+      }
+      
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          type: 'username',
-          keywords: keywords.trim(),
+          prompt,
+          keywords: keywords.trim().split(/[\s,]+/).filter(k => k.length > 0),
           style: selectedStyle,
-          preferences: preferences.trim(),
           count: 10,
         }),
       })

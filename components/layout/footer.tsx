@@ -6,30 +6,34 @@ export default function Footer() {
     product: {
       title: 'Product',
       links: [
-        { name: 'Features', href: '/#features' },
         { name: 'Pricing', href: '/pricing' },
-        { name: 'API Documentation', href: '/api' },
         { name: 'Status', href: '/status' },
+        { name: 'Faq', href: '/faq' },
+        { name: 'API', href: '/api' },
       ],
     },
     company: {
-      title: 'Company',
+      title: 'Tools',
       links: [
-        { name: 'About', href: '/about' },
-        { name: 'Guides', href: '/resources/guides' },
-        { name: 'Dashboard', href: '/dashboard' },
+        { name: 'Username Checker ', href: '/tools/username-checker ' },
+        { name: 'Username Generator', href: '/tools/username-generator' },
+        { name: 'Brand Name Generator', href: '/tools/brand-name-generator' },
+        { name: 'Whatsmyname App ', href: '/tools/whatsmyname ' },
       ],
     },
     support: {
-      title: 'Support',
+      title: 'Resources',
       links: [
-        { name: 'Contact Us', href: '/contact' },
-        { name: 'FAQ', href: '/faq' },
+        { name: 'Supported Sites', href: '/supported-sites' },
+        { name: 'Guides', href: '/guides' },
+        { name: 'Dashboard', href: '/dashboard' },
       ],
     },
     legal: {
-      title: 'Legal',
+      title: 'Company',
       links: [
+        { name: 'About', href: '/about' },
+        { name: 'Contact Us', href: '/contact' },
         { name: 'Privacy Policy', href: '/privacy' },
         { name: 'Terms of Service', href: '/terms' },
       ],
@@ -37,9 +41,9 @@ export default function Footer() {
   }
 
   const socialLinks = [
-    { name: 'Twitter', href: 'https://twitter.com/usernamesearch', icon: Twitter },
-    { name: 'GitHub', href: 'https://github.com/usernamesearch', icon: Github },
-    { name: 'LinkedIn', href: 'https://linkedin.com/company/usernamesearch', icon: Linkedin },
+    { name: 'Twitter', href: 'https://twitter.com/#usernamesearch', icon: Twitter },
+    { name: 'GitHub', href: 'https://github.com/#usernamesearch', icon: Github },
+    { name: 'LinkedIn', href: 'https://linkedin.com/company/#usernamesearch', icon: Linkedin },
     { name: 'Email', href: 'mailto:hello@usernamesearch.io', icon: Mail },
   ]
 
@@ -60,7 +64,7 @@ export default function Footer() {
             </Link>
             <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-md">
               The most comprehensive username availability checker. Find your perfect 
-              digital identity across 1500+ platforms in seconds.
+              digital identity across 520+ platforms in seconds.
             </p>
             
             {/* Social Links */}

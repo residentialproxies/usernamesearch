@@ -356,7 +356,7 @@ export default function PlatformPage({ params }: { params: { platform: string } 
         
         <Alert className="mt-6">
           <AlertDescription>
-            <strong>Pro Tip:</strong> Check username availability across all 1500+ platforms 
+            <strong>Pro Tip:</strong> Check username availability across all 520+ platforms 
             with our <Link href="/pricing" className="font-semibold underline">Pro plan</Link>. 
             Get comprehensive results and never miss a platform again.
           </AlertDescription>
