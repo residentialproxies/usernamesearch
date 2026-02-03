@@ -45,6 +45,14 @@ dump.rdb
 *.swp
 *.swo
 
+# Cloudflare
+wrangler.toml
+.dev.vars
+
+# Deployment
+.vercel
+.env*.local
+
 # OS
 Thumbs.db
 .DS_Store

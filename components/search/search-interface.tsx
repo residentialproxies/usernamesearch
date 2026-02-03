@@ -45,6 +45,13 @@ interface ProgressiveResult {
   category?: string
 }
 
+interface GoogleResultItem {
+  title: string
+  link: string
+  displayLink?: string
+  snippet?: string
+}
+
 // Popular platforms to check first for immediate feedback
 const PRIORITY_PLATFORMS = [
   'instagram', 'tiktok', 'twitter', 'youtube', 'github',
@@ -63,6 +70,9 @@ export default function SearchInterface() {
   const [searchHistory, setSearchHistory] = useState<string[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [copiedResults, setCopiedResults] = useState(false)
+  const [googleResults, setGoogleResults] = useState<GoogleResultItem[]>([])
+  const [googleLoading, setGoogleLoading] = useState(false)
+  const [googleError, setGoogleError] = useState<string | null>(null)
 
   // Load search history from localStorage
   useEffect(() => {
@@ -109,6 +119,30 @@ export default function SearchInterface() {
     })
   }
 
+  // Define fetchGoogleResults before handleSearch to avoid temporal dead zone issues
+  const fetchGoogleResults = useCallback(async (query: string) => {
+    setGoogleLoading(true)
+    setGoogleError(null)
+    try {
+      const res = await fetch(`/api/search/google?username=${encodeURIComponent(query)}&num=5`)
+      if (!res.ok) {
+        // Handle authentication errors silently - user will be redirected by main search
+        if (res.status === 401) {
+          setGoogleError('Please log in to see web mentions')
+          return
+        }
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Google search failed')
+      }
+      const data = await res.json()
+      setGoogleResults(data.items || [])
+    } catch (err) {
+      setGoogleError(err instanceof Error ? err.message : 'Google search failed')
+    } finally {
+      setGoogleLoading(false)
+    }
+  }, [])
+
   const handleSearch = useCallback(async () => {
     if (!username.trim()) {
       setError('Please enter a username')
@@ -124,8 +158,10 @@ export default function SearchInterface() {
     setError(null)
     setResults(null)
     setProgressiveResults([])
+    setGoogleResults([])
+    setGoogleError(null)
     saveToHistory(username.trim())
-    
+
     // Start progressive loading animation
     simulateProgressiveLoading()
 
@@ -135,7 +171,7 @@ export default function SearchInterface() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           username: username.trim(),
           rescan: false // 使用缓存结果以提高速度
         }),
@@ -143,6 +179,11 @@ export default function SearchInterface() {
 
       if (!response.ok) {
         const errorData = await response.json()
+        // Handle authentication errors by redirecting to login
+        if (response.status === 401) {
+          window.location.href = '/login?callbackUrl=' + encodeURIComponent(window.location.pathname)
+          return
+        }
         throw new Error(errorData.error || 'Failed to check username')
       }
 
@@ -152,6 +193,9 @@ export default function SearchInterface() {
       if (data.apiError) {
         setError(`Warning: ${data.apiError}`)
       }
+
+      // Trigger Google search in background
+      fetchGoogleResults(username.trim())
     } catch (err) {
       console.error('Search error:', err)
       setError(err instanceof Error ? err.message : 'An error occurred while searching')
@@ -273,13 +317,24 @@ export default function SearchInterface() {
               <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-yellow-800 dark:text-yellow-200 font-semibold">
-                  {error.includes('Request limit') ? 'Daily limit reached!' : 'Notice'}
+                  {error.includes('Request limit') ? 'Daily limit reached!' : error.includes('Unauthorized') ? 'Login Required' : 'Notice'}
                 </p>
                 <p className="text-yellow-700 dark:text-yellow-300 text-sm mt-1">
-                  {error.includes('Request limit') 
-                    ? 'You\'ve used all 10 free searches today. Come back tomorrow or upgrade to Pro for unlimited searches!' 
+                  {error.includes('Request limit')
+                    ? 'You\'ve used all 10 free searches today. Come back tomorrow or upgrade to Pro for unlimited searches!'
+                    : error.includes('Unauthorized')
+                    ? 'Please log in to search for username availability. It\'s free and takes just a moment!'
                     : error}
                 </p>
+                {error.includes('Unauthorized') && (
+                  <Button
+                    size="sm"
+                    className="mt-3"
+                    onClick={() => window.location.href = '/login?callbackUrl=' + encodeURIComponent(window.location.pathname)}
+                  >
+                    Log In
+                  </Button>
+                )}
               </div>
             </div>
           </div>
@@ -766,6 +821,58 @@ export default function SearchInterface() {
               </div>
             </TabsContent>
           </Tabs>
+
+          {/* Google search highlights */}
+          <div className="mt-8 space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Search className="h-4 w-4 text-primary" />
+                Web mentions for @{username}
+              </h3>
+              {googleLoading && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Searching Google...
+                </div>
+              )}
+            </div>
+
+            {googleError && (
+              <div className="text-sm text-yellow-700 dark:text-yellow-300">
+                {googleError}
+              </div>
+            )}
+
+            <div className="grid gap-3 md:grid-cols-2">
+              {googleResults.map((item, idx) => (
+                <Card key={idx} className="p-4 hover:shadow-sm transition">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="space-y-1">
+                      <a
+                        className="font-semibold hover:text-primary line-clamp-2"
+                        href={item.link}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {item.title}
+                      </a>
+                      <p className="text-xs text-muted-foreground">
+                        {item.displayLink}
+                      </p>
+                      {item.snippet && (
+                        <p className="text-sm text-muted-foreground line-clamp-3">
+                          {item.snippet}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              ))}
+              {!googleLoading && googleResults.length === 0 && !googleError && (
+                <p className="text-sm text-muted-foreground">No web results yet.</p>
+              )}
+            </div>
+          </div>
 
           {/* No Results Message */}
           {getFilteredResults().length === 0 && (

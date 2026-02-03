@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { 
-  checkUsernameViaAPI, 
-  getAllSupportedSites, 
+import {
+  checkUsernameViaAPI,
+  getAllSupportedSites,
   getTotalSitesCount,
   getSitesByCategory,
-  getAllCategories 
-} from '@/lib/services/whatsmyname-api'
+  getAllCategories
+} from '@/lib/services/whatsmynameapp-api'
 import { sortResultsByRanking } from '@/lib/services/similarweb-rankings'
 
 /**
@@ -15,6 +15,7 @@ import { sortResultsByRanking } from '@/lib/services/similarweb-rankings'
  */
 export async function POST(request: NextRequest) {
   try {
+
     const body = await request.json()
     const { username, rescan = false } = body
     

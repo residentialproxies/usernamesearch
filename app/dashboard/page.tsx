@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSession, signOut } from 'next-auth/react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -45,51 +46,30 @@ interface SearchRecord {
 
 export default function DashboardPage() {
   const router = useRouter()
+  const { data: session, status } = useSession()
   const [userData, setUserData] = useState<UserData | null>(null)
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
-    // Check authentication
-    const checkAuth = async () => {
-      try {
-        const response = await fetch('/api/auth/session')
-        if (!response.ok) {
-          router.push('/login')
-          return
-        }
-        
-        // Mock user data for now
-        setUserData({
-          email: 'user@example.com',
-          name: 'John Doe',
-          plan: 'free',
-          credits: 10,
-          usedCredits: 3,
-          searchHistory: [
-            {
-              username: 'johndoe',
-              timestamp: new Date().toISOString(),
-              platformsChecked: 100,
-              available: 67
-            },
-            {
-              username: 'mybrrand',
-              timestamp: new Date(Date.now() - 86400000).toISOString(),
-              platformsChecked: 100,
-              available: 89
-            }
-          ]
-        })
-      } catch (error) {
-        router.push('/login')
-      } finally {
-        setLoading(false)
-      }
+    if (status === 'loading') return
+    if (!session?.user) {
+      router.push('/login')
+      return
     }
-    
-    checkAuth()
-  }, [router])
+
+    // Basic profile derived from session; credits placeholder
+    setUserData({
+      email: session.user.email || 'unknown@example.com',
+      name: session.user.name || undefined,
+      plan: (session.user as any).plan || 'free',
+      apiKey: undefined,
+      credits: 10,
+      usedCredits: 0,
+      searchHistory: [],
+    })
+    setLoading(false)
+  }, [router, session, status])
 
   const copyApiKey = () => {
     if (userData?.apiKey) {

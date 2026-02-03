@@ -1,0 +1,19 @@
+# Cloudflare Workers/Pages Configuration Template
+# Copy this file to wrangler.toml and fill in your values
+# DO NOT commit wrangler.toml to git (it's in .gitignore)
+
+name = "usernamesearch"
+main = "./dist/index.js"
+compatibility_date = "2024-01-01"
+
+# Account ID should be set via CLOUDFLARE_ACCOUNT_ID environment variable
+# account_id = "your-account-id-here"
+
+[build]
+command = "npm run build"
+
+[env.production]
+name = "usernamesearch-prod"
+
+[env.staging]
+name = "usernamesearch-staging"

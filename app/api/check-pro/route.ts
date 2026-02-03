@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { 
   checkUsernameViaAPI, 
   getTotalSitesCount
-} from '@/lib/services/whatsmyname-api'
+} from '@/lib/services/whatsmynameapp-api'
 import { sortResultsByRanking } from '@/lib/services/similarweb-rankings'
 import { validateApiKey, recordApiUsage } from '@/lib/services/api-key-manager'
 

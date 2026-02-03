@@ -3,13 +3,16 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useTheme } from 'next-themes'
+import { useSession, signIn, signOut } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
-import { Menu, X, Sun, Moon, Search, Ticket, BookOpen, ChevronDown, Code, Sparkles } from 'lucide-react'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Menu, X, Sun, Moon, Search, Ticket, BookOpen, ChevronDown, Code, Sparkles, LogOut } from 'lucide-react'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const { theme, setTheme } = useTheme()
+  const { data: session, status } = useSession()
 
   useEffect(() => {
     setMounted(true)
@@ -113,14 +116,39 @@ export default function Header() {
             </Button>
           )}
 
-          {/* CTA Buttons - Desktop */}
+          {/* Auth - Desktop */}
           <div className="hidden md:flex items-center space-x-2">
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/login">Sign In</Link>
-            </Button>
-            <Button size="sm" asChild>
-              <Link href="/signup">Get Started</Link>
-            </Button>
+            {session ? (
+              <>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/dashboard">Dashboard</Link>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => signOut({ callbackUrl: '/' })}
+                  className="flex items-center gap-1"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign out
+                </Button>
+                <Avatar className="h-8 w-8 border">
+                  <AvatarImage src={session.user?.image || ''} alt={session.user?.name || session.user?.email || ''} />
+                  <AvatarFallback>
+                    {(session.user?.name || session.user?.email || 'U').slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" onClick={() => signIn('google')}>
+                  Sign In
+                </Button>
+                <Button size="sm" onClick={() => signIn('google')}>
+                  Get Started
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -187,18 +215,36 @@ export default function Header() {
               <span>Username AI</span>
             </Link>
             
-            {/* Mobile CTA Buttons */}
+            {/* Mobile Auth */}
             <div className="flex flex-col space-y-2 pt-4 border-t">
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/login" onClick={() => setIsMenuOpen(false)}>
-                  Sign In
-                </Link>
-              </Button>
-              <Button size="sm" asChild>
-                <Link href="/signup" onClick={() => setIsMenuOpen(false)}>
-                  Get Started
-                </Link>
-              </Button>
+              {session ? (
+                <>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href="/dashboard" onClick={() => setIsMenuOpen(false)}>
+                      Dashboard
+                    </Link>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setIsMenuOpen(false)
+                      signOut({ callbackUrl: '/' })
+                    }}
+                  >
+                    Sign out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="ghost" size="sm" onClick={() => { setIsMenuOpen(false); signIn('google') }}>
+                    Sign In
+                  </Button>
+                  <Button size="sm" onClick={() => { setIsMenuOpen(false); signIn('google') }}>
+                    Get Started
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
