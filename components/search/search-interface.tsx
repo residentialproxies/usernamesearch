@@ -190,13 +190,14 @@ export default function SearchInterface() {
       const categorizedResults: Record<string, SearchResult[]> = {}
 
       // Handle the external API response format
-      // Expected format: { results: [{ site_name, url, status, category, ... }] }
-      if (externalData.results && Array.isArray(externalData.results)) {
-        externalData.results.forEach((item: any) => {
+      // Expected format: { resultArr: [{ source, url, isExist, category, ... }] }
+      const apiResults = externalData.resultArr || externalData.results
+      if (apiResults && Array.isArray(apiResults)) {
+        apiResults.forEach((item: any) => {
           const result: SearchResult = {
-            url: item.url || item.profile_url || '',
-            source: item.site_name || item.platform || item.source || 'Unknown',
-            isExist: item.status === 'found' || item.exists === true || item.found === true,
+            url: item.url || '',
+            source: item.source || 'Unknown',
+            isExist: item.isExist === true,
             category: item.category || 'Other'
           }
 
