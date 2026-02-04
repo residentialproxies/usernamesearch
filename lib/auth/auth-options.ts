@@ -60,7 +60,7 @@ export const authOptions: NextAuthOptions = {
       session.user = {
         ...session.user,
         id: token.sub,
-        plan: (token as { plan?: string }).plan ?? 'free',
+        plan: ((token as { plan?: string }).plan as 'free' | 'pro' | 'enterprise') ?? 'free',
         provider: (token as { provider?: string }).provider,
         image: (token as { picture?: string }).picture || session.user?.image,
       }
