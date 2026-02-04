@@ -1,9 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import {
+  STORAGE_KEYS,
+  RATE_LIMITS,
+} from '@/lib/config'
 
-const EXPORT_COUNT_KEY = 'usernamesearch_export_count'
-const SESSION_START_KEY = 'usernamesearch_session_start'
+const EXPORT_COUNT_KEY = STORAGE_KEYS.EXPORT_COUNT
+const SESSION_START_KEY = STORAGE_KEYS.SESSION_START
 
 export interface ExportCountState {
   count: number
@@ -27,7 +31,7 @@ export function useExportCount(): ExportCountState {
       const now = Date.now()
       
       // Check if this is a new session (24 hours reset)
-      if (!sessionStart || (now - parseInt(sessionStart)) > 24 * 60 * 60 * 1000) {
+      if (!sessionStart || (now - parseInt(sessionStart)) > RATE_LIMITS.SESSION_RESET_HOURS * 60 * 60 * 1000) {
         // Reset count for new session
         localStorage.setItem(SESSION_START_KEY, now.toString())
         localStorage.setItem(EXPORT_COUNT_KEY, '0')
@@ -57,8 +61,8 @@ export function useExportCount(): ExportCountState {
     }
   }
 
-  // Need verification if this is the fourth export or more (3 free exports)
-  const needsVerification = count >= 3
+  // Need verification if exports exceed free limit
+  const needsVerification = count >= RATE_LIMITS.FREE_EXPORTS_BEFORE_VERIFICATION
 
   return {
     count,

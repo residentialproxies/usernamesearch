@@ -1,5 +1,16 @@
 import sitesData from '../data/sites.json';
 import { getSiteRanking } from './site-rankings';
+import {
+  TIMEOUTS,
+  CONCURRENCY,
+  USERNAME_RULES,
+  HTTP_HEADERS,
+  BATCH_CONFIG,
+  SITE_RANKINGS,
+  ERROR_MESSAGES,
+  VALIDATION_MESSAGES,
+  SITE_CATEGORIES,
+} from '@/lib/config';
 
 export interface Site {
   category: string;
@@ -35,8 +46,8 @@ export interface UsernameCheckResponse {
 
 class UsernameChecker {
   private sites: Record<string, Site>;
-  private readonly REQUEST_TIMEOUT = 10000; // 10 seconds
-  private readonly MAX_CONCURRENT_REQUESTS = 50;
+  private readonly REQUEST_TIMEOUT = TIMEOUTS.SITE_CHECK;
+  private readonly MAX_CONCURRENT_REQUESTS = CONCURRENCY.MAX_CONCURRENT_REQUESTS;
 
   constructor() {
     this.sites = sitesData as unknown as Record<string, Site>;
@@ -52,7 +63,7 @@ class UsernameChecker {
       const regex = new RegExp(site.regexCheck);
       return regex.test(username);
     } catch (error) {
-      console.warn(`Invalid regex for site: ${site.regexCheck}`);
+      console.warn(VALIDATION_MESSAGES.INVALID_REGEX(site.regexCheck));
       return true; // Allow check if regex is invalid
     }
   }
@@ -90,13 +101,13 @@ class UsernameChecker {
       const response = await fetch(url, {
         method: 'GET',
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-          'Accept-Language': 'en-US,en;q=0.5',
-          'Accept-Encoding': 'gzip, deflate',
-          'DNT': '1',
-          'Connection': 'keep-alive',
-          'Upgrade-Insecure-Requests': '1',
+          'User-Agent': HTTP_HEADERS.USER_AGENT,
+          'Accept': HTTP_HEADERS.ACCEPT,
+          'Accept-Language': HTTP_HEADERS.ACCEPT_LANGUAGE,
+          'Accept-Encoding': HTTP_HEADERS.ACCEPT_ENCODING,
+          'DNT': HTTP_HEADERS.DNT,
+          'Connection': HTTP_HEADERS.CONNECTION,
+          'Upgrade-Insecure-Requests': HTTP_HEADERS.UPGRADE_INSECURE_REQUESTS,
         },
         signal: controller.signal,
       });
@@ -117,12 +128,12 @@ class UsernameChecker {
     } catch (error) {
       if (error instanceof Error) {
         if (error.name === 'AbortError') {
-          result.error = 'Request timeout';
+          result.error = ERROR_MESSAGES.REQUEST_TIMEOUT;
         } else {
           result.error = error.message;
         }
       } else {
-        result.error = 'Unknown error occurred';
+        result.error = ERROR_MESSAGES.UNKNOWN_ERROR;
       }
       result.available = null;
     }
@@ -135,18 +146,18 @@ class UsernameChecker {
    */
   async checkUsername(username: string): Promise<UsernameCheckResponse> {
     if (!username || username.trim().length === 0) {
-      throw new Error('Username is required');
+      throw new Error(ERROR_MESSAGES.USERNAME_REQUIRED);
     }
 
     const trimmedUsername = username.trim();
-    
+
     // Basic username validation
-    if (trimmedUsername.length < 2) {
-      throw new Error('Username must be at least 2 characters long');
+    if (trimmedUsername.length < USERNAME_RULES.MIN_LENGTH) {
+      throw new Error(ERROR_MESSAGES.USERNAME_MIN_LENGTH(USERNAME_RULES.MIN_LENGTH));
     }
 
-    if (trimmedUsername.length > 50) {
-      throw new Error('Username must be less than 50 characters');
+    if (trimmedUsername.length > USERNAME_RULES.MAX_LENGTH) {
+      throw new Error(ERROR_MESSAGES.USERNAME_MAX_LENGTH(USERNAME_RULES.MAX_LENGTH));
     }
 
     const siteEntries = Object.entries(this.sites);
@@ -167,14 +178,14 @@ class UsernameChecker {
 
       // Small delay between batches to be respectful to servers
       if (i + batchSize < siteEntries.length) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, BATCH_CONFIG.BATCH_DELAY_MS));
       }
     }
 
     // Sort results by ranking (lower number = higher priority)
     results.sort((a, b) => {
-      const rankA = a.ranking || 999999;
-      const rankB = b.ranking || 999999;
+      const rankA = a.ranking || SITE_RANKINGS.DEFAULT_RANKING;
+      const rankB = b.ranking || SITE_RANKINGS.DEFAULT_RANKING;
       return rankA - rankB;
     });
 
@@ -197,11 +208,11 @@ class UsernameChecker {
    * Checks username availability for specific sites only
    */
   async checkUsernameForSites(
-    username: string, 
+    username: string,
     siteNames: string[]
   ): Promise<UsernameCheckResponse> {
     if (!username || username.trim().length === 0) {
-      throw new Error('Username is required');
+      throw new Error(ERROR_MESSAGES.USERNAME_REQUIRED);
     }
 
     if (!siteNames || siteNames.length === 0) {
@@ -218,7 +229,7 @@ class UsernameChecker {
           siteName,
           url: '',
           urlMain: '',
-          category: '',
+          category: SITE_CATEGORIES.DEFAULT,
           available: null,
           error: `Site '${siteName}' not found`,
           ranking: getSiteRanking(siteName)
@@ -233,8 +244,8 @@ class UsernameChecker {
 
     // Sort by ranking
     results.sort((a, b) => {
-      const rankA = a.ranking || 999999;
-      const rankB = b.ranking || 999999;
+      const rankA = a.ranking || SITE_RANKINGS.DEFAULT_RANKING;
+      const rankB = b.ranking || SITE_RANKINGS.DEFAULT_RANKING;
       return rankA - rankB;
     });
 

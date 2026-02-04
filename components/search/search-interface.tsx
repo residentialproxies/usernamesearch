@@ -166,33 +166,68 @@ export default function SearchInterface() {
     simulateProgressiveLoading()
 
     try {
-      const response = await fetch('/api/check', {
+      const response = await fetch('https://api.usernamesearch.io/discoverprofile', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username: username.trim(),
-          rescan: false // 使用缓存结果以提高速度
+          source: username.trim(),
+          type: 'name',
+          rescan: false
         }),
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        // Handle authentication errors by redirecting to login
-        if (response.status === 401) {
-          window.location.href = '/login?callbackUrl=' + encodeURIComponent(window.location.pathname)
-          return
-        }
-        throw new Error(errorData.error || 'Failed to check username')
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || errorData.message || 'Failed to check username')
       }
 
-      const data: ApiResponse = await response.json()
+      const externalData = await response.json()
+
+      // Map external API response to internal ApiResponse format
+      const mappedResults: SearchResult[] = []
+      const categorizedResults: Record<string, SearchResult[]> = {}
+
+      // Handle the external API response format
+      // Expected format: { results: [{ site_name, url, status, category, ... }] }
+      if (externalData.results && Array.isArray(externalData.results)) {
+        externalData.results.forEach((item: any) => {
+          const result: SearchResult = {
+            url: item.url || item.profile_url || '',
+            source: item.site_name || item.platform || item.source || 'Unknown',
+            isExist: item.status === 'found' || item.exists === true || item.found === true,
+            category: item.category || 'Other'
+          }
+
+          mappedResults.push(result)
+
+          // Group by category
+          const category = result.category || 'Other'
+          if (!categorizedResults[category]) {
+            categorizedResults[category] = []
+          }
+          categorizedResults[category].push(result)
+        })
+      }
+
+      const totalAvailable = mappedResults.filter(r => !r.isExist).length
+      const totalTaken = mappedResults.filter(r => r.isExist).length
+
+      const data: ApiResponse = {
+        username: username.trim(),
+        results: mappedResults,
+        categorizedResults: categorizedResults,
+        stats: {
+          totalChecked: mappedResults.length,
+          totalAvailable: totalAvailable,
+          totalTaken: totalTaken,
+          totalSites: mappedResults.length
+        },
+        apiError: null
+      }
+
       setResults(data)
-
-      if (data.apiError) {
-        setError(`Warning: ${data.apiError}`)
-      }
 
       // Trigger Google search in background
       fetchGoogleResults(username.trim())
@@ -309,32 +344,15 @@ export default function SearchInterface() {
         </AnimatePresence>
       </div>
 
-      {/* Error Message with Better User Guidance */}
+      {/* Error Message */}
       {error && (
         <div className="max-w-2xl mx-auto">
           <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
             <div className="flex items-start gap-3">
               <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-yellow-800 dark:text-yellow-200 font-semibold">
-                  {error.includes('Request limit') ? 'Daily limit reached!' : error.includes('Unauthorized') ? 'Login Required' : 'Notice'}
-                </p>
-                <p className="text-yellow-700 dark:text-yellow-300 text-sm mt-1">
-                  {error.includes('Request limit')
-                    ? 'You\'ve used all 10 free searches today. Come back tomorrow or upgrade to Pro for unlimited searches!'
-                    : error.includes('Unauthorized')
-                    ? 'Please log in to search for username availability. It\'s free and takes just a moment!'
-                    : error}
-                </p>
-                {error.includes('Unauthorized') && (
-                  <Button
-                    size="sm"
-                    className="mt-3"
-                    onClick={() => window.location.href = '/login?callbackUrl=' + encodeURIComponent(window.location.pathname)}
-                  >
-                    Log In
-                  </Button>
-                )}
+                <p className="text-yellow-800 dark:text-yellow-200 font-semibold">Notice</p>
+                <p className="text-yellow-700 dark:text-yellow-300 text-sm mt-1">{error}</p>
               </div>
             </div>
           </div>
@@ -883,22 +901,6 @@ export default function SearchInterface() {
             </div>
           )}
 
-          {/* Pro Upsell */}
-          {results.stats.totalChecked < results.stats.totalSites && (
-            <Card className="p-6 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
-              <div className="text-center">
-                <h3 className="text-lg font-semibold mb-2">
-                  Want unlimited searches and automation?
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Upgrade to Pro for unlimited daily searches, API access, and bulk checking capabilities
-                </p>
-                <Button asChild>
-                  <a href="/pricing">View Pricing Plans</a>
-                </Button>
-              </div>
-            </Card>
-          )}
         </div>
       )}
     </div>

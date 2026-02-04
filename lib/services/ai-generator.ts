@@ -1,18 +1,26 @@
 import { z } from 'zod';
-
-// Environment variable for Gemini API key
-// Using the provided free API key from tasks.md
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyCbinafIhh5cHsoC4vU35Zu0DbOHe-SjVc';
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+import {
+  getGeminiApiKey,
+  API_ENDPOINTS,
+  API_CONFIG,
+  TIMEOUTS,
+  AI_GENERATION,
+  USERNAME_RULES,
+  AI_STYLES,
+  PLATFORM_PROMPTS,
+  FALLBACK_PATTERNS,
+  VALIDATION_MESSAGES,
+  HEALTH_MESSAGES,
+} from '@/lib/config';
 
 // Request/Response schemas
 const GenerateUsernamesRequestSchema = z.object({
   prompt: z.string().min(1, 'Prompt is required'),
-  count: z.number().min(1).max(50).default(10),
+  count: z.number().min(AI_GENERATION.MIN_COUNT).max(AI_GENERATION.MAX_COUNT).default(AI_GENERATION.DEFAULT_COUNT),
   style: z.enum(['creative', 'professional', 'casual', 'gaming', 'tech', 'artistic']).optional(),
   keywords: z.array(z.string()).optional(),
   avoid: z.array(z.string()).optional(), // Words/patterns to avoid
-  maxLength: z.number().min(3).max(30).optional(),
+  maxLength: z.number().min(USERNAME_RULES.MIN_LENGTH_GENERATED).max(USERNAME_RULES.MAX_LENGTH_GENERATED).optional(),
   includeNumbers: z.boolean().optional(),
   includeUnderscores: z.boolean().optional(),
 });
@@ -44,14 +52,10 @@ export interface UsernameGenerationResult {
 
 class AIUsernameGenerator {
   private readonly apiKey: string;
-  private readonly requestTimeout = 15000; // 15 seconds
+  private readonly requestTimeout = TIMEOUTS.AI_GENERATION;
 
   constructor() {
-    // API key is now optional with fallback to free key
-    if (!GEMINI_API_KEY) {
-      console.warn('GEMINI_API_KEY not set, using default free key');
-    }
-    this.apiKey = GEMINI_API_KEY;
+    this.apiKey = getGeminiApiKey();
   }
 
   /**
@@ -62,7 +66,7 @@ class AIUsernameGenerator {
     const cleaned = username.trim().replace(/^["']|["']$/g, '');
     
     // Basic validation
-    if (cleaned.length < 2 || cleaned.length > (maxLength || 30)) {
+    if (cleaned.length < USERNAME_RULES.MIN_LENGTH || cleaned.length > (maxLength || USERNAME_RULES.MAX_LENGTH_GENERATED)) {
       return false;
     }
 
@@ -114,15 +118,7 @@ class AIUsernameGenerator {
     systemPrompt += `Main theme/prompt: "${prompt}"\n\n`;
 
     if (style) {
-      const styleGuides = {
-        creative: 'Be imaginative and unique, mixing words in unexpected ways',
-        professional: 'Keep it business-appropriate and trustworthy',
-        casual: 'Make it friendly and approachable',
-        gaming: 'Create something that sounds cool for gaming platforms',
-        tech: 'Use tech-related terms and make it sound innovative',
-        artistic: 'Make it sound creative and expressive'
-      };
-      systemPrompt += `Style: ${styleGuides[style]}\n`;
+      systemPrompt += `Style: ${AI_STYLES[style]}\n`;
     }
 
     if (keywords && keywords.length > 0) {
@@ -130,7 +126,7 @@ class AIUsernameGenerator {
     }
 
     systemPrompt += `\nConstraints:\n`;
-    systemPrompt += `- Each username must be ${maxLength ? `2-${maxLength}` : '2-30'} characters long\n`;
+    systemPrompt += `- Each username must be ${maxLength ? `${USERNAME_RULES.MIN_LENGTH}-${maxLength}` : `${USERNAME_RULES.MIN_LENGTH}-${USERNAME_RULES.MAX_LENGTH_GENERATED}`} characters long\n`;
     systemPrompt += `- Use only letters, numbers${includeUnderscores ? ', underscores' : ''}${includeNumbers === false ? ' (no numbers unless specifically needed)' : ''}\n`;
     systemPrompt += `- Start with a letter or number\n`;
     systemPrompt += `- Make each username unique and memorable\n`;
@@ -153,23 +149,8 @@ class AIUsernameGenerator {
     const keywordList = keywords || [];
     
     // Predefined suffixes and prefixes based on style
-    const stylePrefixes = {
-      creative: ['artistic', 'magic', 'dream', 'mystic', 'epic'],
-      professional: ['pro', 'expert', 'ace', 'prime', 'elite'],
-      gaming: ['game', 'pro', 'epic', 'legend', 'master'],
-      tech: ['dev', 'code', 'tech', 'cyber', 'digital'],
-      casual: ['cool', 'fun', 'nice', 'happy', 'chill'],
-      artistic: ['art', 'creative', 'design', 'paint', 'sketch']
-    };
-    
-    const styleSuffixes = {
-      creative: ['x', '2024', 'pro', 'star', 'dream'],
-      professional: ['pro', 'expert', '2024', 'official', 'biz'],
-      gaming: ['gamer', 'pro', 'x', 'legend', 'master'],
-      tech: ['dev', 'tech', 'code', 'byte', 'bit'],
-      casual: ['cool', 'fun', 'awesome', 'nice', 'great'],
-      artistic: ['art', 'creative', 'studio', 'design', 'gallery']
-    };
+    const stylePrefixes = FALLBACK_PATTERNS.PREFIXES;
+    const styleSuffixes = FALLBACK_PATTERNS.SUFFIXES;
     
     const prefixes = stylePrefixes[style as keyof typeof stylePrefixes] || stylePrefixes.creative;
     const suffixes = styleSuffixes[style as keyof typeof styleSuffixes] || styleSuffixes.creative;
@@ -224,32 +205,18 @@ class AIUsernameGenerator {
           }]
         }],
         generationConfig: {
-          temperature: 0.9,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 2048,
+          temperature: AI_GENERATION.TEMPERATURE,
+          topK: AI_GENERATION.TOP_K,
+          topP: AI_GENERATION.TOP_P,
+          maxOutputTokens: AI_GENERATION.MAX_OUTPUT_TOKENS,
         },
-        safetySettings: [
-          {
-            category: "HARM_CATEGORY_HARASSMENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_HATE_SPEECH",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          }
-        ]
+        safetySettings: API_CONFIG.GEMINI.SAFETY_SETTINGS.map(s => ({
+          category: s.category,
+          threshold: s.threshold,
+        })),
       };
 
-      const response = await fetch(`${GEMINI_API_URL}?key=${this.apiKey}`, {
+      const response = await fetch(`${API_ENDPOINTS.GEMINI}?key=${this.apiKey}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -269,7 +236,7 @@ class AIUsernameGenerator {
       const parsedResponse = GeminiResponseSchema.parse(data);
 
       if (!parsedResponse.candidates || parsedResponse.candidates.length === 0) {
-        throw new Error('No response from Gemini API');
+        throw new Error(VALIDATION_MESSAGES.NO_CANDIDATES);
       }
 
       return parsedResponse.candidates[0].content.parts[0].text;
@@ -328,7 +295,7 @@ class AIUsernameGenerator {
         usernames = this.parseUsernameResponse(response);
         totalGenerated = usernames.length;
       } catch (aiError) {
-        console.warn('AI generation failed, using fallback method:', aiError);
+        console.warn(VALIDATION_MESSAGES.AI_GENERATION_FAILED, aiError);
         // Use fallback generation
         usernames = this.generateFallbackUsernames(validatedRequest);
         totalGenerated = usernames.length;
@@ -399,19 +366,9 @@ class AIUsernameGenerator {
   async generateForPlatform(
     platform: string,
     interests: string[],
-    count: number = 10
+    count: number = AI_GENERATION.DEFAULT_COUNT
   ): Promise<UsernameGenerationResult> {
-    const platformStyles: Record<string, string> = {
-      instagram: 'Create Instagram-friendly usernames that are catchy and memorable',
-      tiktok: 'Generate fun, trendy usernames perfect for TikTok',
-      twitter: 'Make professional yet engaging usernames for Twitter',
-      linkedin: 'Create professional, business-appropriate usernames',
-      github: 'Generate developer-friendly usernames for GitHub',
-      gaming: 'Create cool, edgy usernames for gaming platforms',
-      youtube: 'Make memorable usernames perfect for content creators'
-    };
-
-    const platformPrompt = platformStyles[platform.toLowerCase()] || 
+    const platformPrompt = PLATFORM_PROMPTS[platform.toLowerCase()] ||
                           `Generate usernames suitable for ${platform}`;
 
     const prompt = `${platformPrompt}. Interests: ${interests.join(', ')}`;
@@ -436,9 +393,9 @@ class AIUsernameGenerator {
       });
 
       if (testResult.usernames.length > 0) {
-        return { status: 'healthy', message: 'AI generator is working properly' };
+        return { status: 'healthy', message: HEALTH_MESSAGES.AI_HEALTHY };
       } else {
-        return { status: 'unhealthy', message: 'AI generator returned no results' };
+        return { status: 'unhealthy', message: HEALTH_MESSAGES.AI_UNHEALTHY_NO_RESULTS };
       }
     } catch (error) {
       return { 

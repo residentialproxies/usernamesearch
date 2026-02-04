@@ -4,9 +4,13 @@
  */
 
 import siteData from '@/lib/data/sites.json'
-
-const API_BASE_URL = 'https://api.whatsmynameapp.org/api/v1/search'
-const API_KEY = process.env.WHATSMYNAME_API_KEY || 'nji0gLinJHtIkyQu8vMoWVVyn4uwhJVW'
+import {
+  getWhatsmynameApiKey,
+  API_ENDPOINTS,
+  API_CONFIG,
+  TIMEOUTS,
+  SITE_CATEGORIES,
+} from '@/lib/config'
 
 export interface CheckResult {
   url: string
@@ -39,15 +43,15 @@ export async function checkUsernameViaAPI(
   username: string,
   rescan: boolean = false
 ): Promise<ApiResponse> {
-  const url = `${API_BASE_URL}?username=${encodeURIComponent(username)}${rescan ? '&rescan=true' : ''}`
+  const url = `${API_ENDPOINTS.WHATSMYNAME}?username=${encodeURIComponent(username)}${rescan ? '&rescan=true' : ''}`
 
   const response = await fetch(url, {
     headers: {
-      'x-api-key': API_KEY,
-      Accept: 'application/x-ndjson',
+      [API_CONFIG.WHATSMYNAME.API_KEY_HEADER]: getWhatsmynameApiKey(),
+      Accept: API_CONFIG.WHATSMYNAME.ACCEPT_HEADER,
     },
     // A hard timeout prevents hanging requests
-    signal: AbortSignal.timeout(45000),
+    signal: AbortSignal.timeout(TIMEOUTS.API_REQUEST),
   })
 
   if (!response.ok) {
@@ -108,7 +112,7 @@ export async function checkUsernameViaAPI(
 export function getCategoryForSite(siteName: string): string {
   const sites = siteData as unknown as Record<string, SiteInfo>
   if (sites[siteName]) return sites[siteName].category
-  return 'Other'
+  return SITE_CATEGORIES.DEFAULT
 }
 
 export function getAllSupportedSites(): string[] {
