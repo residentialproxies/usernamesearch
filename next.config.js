@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['data.similarweb.com', 'api.whatsmyname.io'],
+    unoptimized: true,
   },
   env: {
     GEMINI_API_KEY: process.env.GEMINI_API_KEY || 'AIzaSyCbinafIhh5cHsoC4vU35Zu0DbOHe-SjVc',
