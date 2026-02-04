@@ -51,7 +51,7 @@ export default function DocsLayout({
               "@type": "Organization",
               "name": "UsernameSearch.io"
             },
-            "dateModified": new Date().toISOString(),
+            "dateModified": "2025-01-15T00:00:00.000Z",
             "audience": {
               "@type": "Audience",
               "audienceType": "Developers"
