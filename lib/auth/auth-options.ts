@@ -71,6 +71,7 @@ export const authOptions: NextAuthOptions = {
 
   debug: process.env.NODE_ENV === 'development',
   secret: process.env.NEXTAUTH_SECRET,
+  useSecureCookies: process.env.NODE_ENV === 'production',
 }
 
 // Ensure at least one provider is configured at runtime to avoid silent failures.
