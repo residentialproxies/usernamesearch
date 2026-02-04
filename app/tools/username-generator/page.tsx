@@ -99,14 +99,19 @@ export default function UsernameGeneratorPage() {
       )
       
       try {
-        const response = await fetch('/api/check', {
+        const response = await fetch('https://api.usernamesearch.io/discoverprofile', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: usernames[i] }),
+          body: JSON.stringify({
+            source: usernames[i],
+            type: 'name',
+            rescan: false
+          }),
         })
-        
+
         const data = await response.json()
-        const availableCount = data.stats?.totalAvailable || 0
+        const apiResults = data.resultArr || data.results || []
+        const availableCount = apiResults.filter((r: any) => !r.isExist).length
         
         setGeneratedUsernames(prev => 
           prev.map((item, index) => 

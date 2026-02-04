@@ -132,27 +132,67 @@ export default function UsernameCheckerPage() {
     simulateProgressiveLoading()
     
     try {
-      const response = await fetch('/api/check', {
+      const response = await fetch('https://api.usernamesearch.io/discoverprofile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          username: trimmedUsername,
-          rescan: false // Use cache for faster results
+        body: JSON.stringify({
+          source: trimmedUsername,
+          type: 'name',
+          rescan: false
         }),
       })
-      
+
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to check username')
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || errorData.message || 'Failed to check username')
       }
 
-      const data: ApiResponse = await response.json()
+      const externalData = await response.json()
+
+      // Map external API response to internal ApiResponse format
+      const mappedResults: SearchResult[] = []
+      const categorizedResults: Record<string, SearchResult[]> = {}
+
+      // Handle the external API response format
+      const apiResults = externalData.resultArr || externalData.results
+      if (apiResults && Array.isArray(apiResults)) {
+        apiResults.forEach((item: any) => {
+          const result: SearchResult = {
+            url: item.url || '',
+            source: item.source || 'Unknown',
+            isExist: item.isExist === true,
+            category: item.category || 'Other'
+          }
+
+          mappedResults.push(result)
+
+          // Group by category
+          const category = result.category || 'Other'
+          if (!categorizedResults[category]) {
+            categorizedResults[category] = []
+          }
+          categorizedResults[category].push(result)
+        })
+      }
+
+      const totalAvailable = mappedResults.filter(r => !r.isExist).length
+      const totalTaken = mappedResults.filter(r => r.isExist).length
+
+      const data: ApiResponse = {
+        username: trimmedUsername,
+        results: mappedResults,
+        categorizedResults: categorizedResults,
+        stats: {
+          totalChecked: mappedResults.length,
+          totalAvailable: totalAvailable,
+          totalTaken: totalTaken,
+          totalSites: mappedResults.length
+        },
+        apiError: null
+      }
+
       setResults(data)
       setSearchProgress(100)
-      
-      if (data.apiError) {
-        setError(`Warning: ${data.apiError}`)
-      }
     } catch (err) {
       console.error('Search error:', err)
       setError(err instanceof Error ? err.message : 'An error occurred while searching')

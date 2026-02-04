@@ -242,34 +242,37 @@ const API_DOCUMENTATION = {
     }
   ],
   codeExamples: {
-    curl: `curl -X POST https://usernamesearch.io/api/check \\
+    curl: `curl -X POST https://api.usernamesearch.io/discoverprofile \\
   -H "Content-Type: application/json" \\
-  -H "X-API-Key: your-api-key" \\
-  -d '{"username": "johndoe"}'`,
-    
-    javascript: `const response = await fetch('https://usernamesearch.io/api/check', {
+  -d '{"source": "johndoe", "type": "name", "rescan": false}'`,
+
+    javascript: `const response = await fetch('https://api.usernamesearch.io/discoverprofile', {
   method: 'POST',
   headers: {
-    'Content-Type': 'application/json',
-    'X-API-Key': 'your-api-key'
+    'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    username: 'johndoe'
+    source: 'johndoe',
+    type: 'name',
+    rescan: false
   })
 });
 
 const data = await response.json();
 console.log(data);`,
-    
+
     python: `import requests
 
 response = requests.post(
-    'https://usernamesearch.io/api/check',
+    'https://api.usernamesearch.io/discoverprofile',
     headers={
-        'Content-Type': 'application/json',
-        'X-API-Key': 'your-api-key'
+        'Content-Type': 'application/json'
     },
-    json={'username': 'johndoe'}
+    json={
+        'source': 'johndoe',
+        'type': 'name',
+        'rescan': False
+    }
 )
 
 data = response.json()
