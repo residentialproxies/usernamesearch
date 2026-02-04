@@ -67,7 +67,7 @@ export default function UsernameRecoveryGuidePage() {
               "name": "UsernameSearch.io"
             },
             "datePublished": "2024-01-01",
-            "dateModified": new Date().toISOString(),
+            "dateModified": "2025-01-15T00:00:00.000Z",
             "step": [
               {
                 "@type": "HowToStep",
