@@ -154,7 +154,7 @@ export default function UsernameCheckerPage() {
       const categorizedResults: Record<string, SearchResult[]> = {}
 
       // Handle the external API response format
-      const apiResults = externalData.resultArr || externalData.results
+      const apiResults = externalData.result || externalData.resultArr || externalData.results
       if (apiResults && Array.isArray(apiResults)) {
         apiResults.forEach((item: any) => {
           const result: SearchResult = {

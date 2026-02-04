@@ -100,7 +100,7 @@ export default function BrandNameGeneratorPage() {
         })
 
         const data = await response.json()
-        const apiResults = data.resultArr || data.results || []
+        const apiResults = data.result || data.resultArr || data.results || []
         const availableCount = apiResults.filter((r: any) => !r.isExist).length
         
         setGeneratedBrands(prev => 
