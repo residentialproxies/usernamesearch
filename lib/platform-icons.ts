@@ -78,6 +78,9 @@ export function getPlatformIcon(platformName: string): string | null {
 
 // Get icon from URL domain
 export function getIconFromUrl(url: string): string {
+  if (!url || typeof url !== 'string') {
+    return ''
+  }
   try {
     const domain = new URL(url).hostname
     // Use Google's favicon service as fallback
