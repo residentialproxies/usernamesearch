@@ -124,7 +124,7 @@ export default function SearchInterface() {
     setGoogleLoading(true)
     setGoogleError(null)
     try {
-      const res = await fetch(`/api/search/google?username=${encodeURIComponent(query)}&num=5`)
+      const res = await fetch(`/api/search/google?username=${encodeURIComponent(query)}&num=10`)
       if (!res.ok) {
         // Handle authentication errors silently - user will be redirected by main search
         if (res.status === 401) {
