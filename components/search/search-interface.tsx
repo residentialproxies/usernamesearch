@@ -184,6 +184,7 @@ export default function SearchInterface() {
       }
 
       const externalData = await response.json()
+      console.log('API Response:', JSON.stringify(externalData, null, 2))
 
       // Map external API response to internal ApiResponse format
       const mappedResults: SearchResult[] = []
