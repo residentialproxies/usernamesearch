@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -45,6 +46,7 @@ export default function UsernameGeneratorPage() {
   const [generatedUsernames, setGeneratedUsernames] = useState<GeneratedUsername[]>([])
   const [loading, setLoading] = useState(false)
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
+  const { data: session } = useSession()
 
   const handleGenerate = async () => {
     if (!keywords.trim()) return
@@ -99,18 +101,19 @@ export default function UsernameGeneratorPage() {
       )
       
       try {
-        const response = await fetch('https://api.usernamesearch.io/discoverprofile', {
+        const isLoggedIn = Boolean(session?.user)
+        const response = await fetch(isLoggedIn ? '/api/check' : 'https://api.usernamesearch.io/discoverprofile', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            source: usernames[i],
-            type: 'name',
-            rescan: false
-          }),
+          body: JSON.stringify(
+            isLoggedIn
+              ? { username: usernames[i], rescan: false }
+              : { source: usernames[i], type: 'name', rescan: false }
+          ),
         })
 
         const data = await response.json()
-        const apiResults = data.result || data.resultArr || data.results || []
+        const apiResults = isLoggedIn ? data.results || [] : data.result || data.resultArr || data.results || []
         const availableCount = apiResults.filter((r: any) => !r.isExist).length
         
         setGeneratedUsernames(prev => 

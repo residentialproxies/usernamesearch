@@ -1,19 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-
-const GEMINI_API_KEYS = [
-  'AIzaSyCbinafIhh5cHsoC4vU35Zu0DbOHe-SjVc',
-]
+import { API_ENDPOINTS, API_CONFIG, getGeminiApiKey } from '@/lib/config'
 
 async function callGeminiAPI(prompt: string) {
-  const apiKey = GEMINI_API_KEYS[Math.floor(Math.random() * GEMINI_API_KEYS.length)]
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`
+  const apiKey = getGeminiApiKey()
+  const apiUrl = `${API_ENDPOINTS.GEMINI}?key=${apiKey}`
 
   try {
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-goog-api-key': apiKey,
       },
       body: JSON.stringify({
         contents: [{
@@ -24,7 +20,11 @@ async function callGeminiAPI(prompt: string) {
         generationConfig: {
           temperature: 0.9,
           maxOutputTokens: 1024,
-        }
+        },
+        safetySettings: API_CONFIG.GEMINI.SAFETY_SETTINGS.map(s => ({
+          category: s.category,
+          threshold: s.threshold,
+        })),
       })
     })
 

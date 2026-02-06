@@ -120,10 +120,10 @@ describe('Username Checker', () => {
 #### Environment Variables
 ```bash
 # .env.local
-GEMINI_API_KEY=AIzaSyCbinafIhh5cHsoC4vU35Zu0DbOHe-SjVc
-STRIPE_PUBLIC_KEY=c0c51dfc-f71c-4b82-a0c5-006b88e91631
-STRIPE_API_KEY=EE4GPYN-SB2MM6W-MP2EEGW-Y5N3ZGG
-STRIPE_IPN_SECRET=/otKp+iC3B51OZib9kkBgdLxrlH+aihs
+GEMINI_API_KEY=your_gemini_api_key
+STRIPE_PUBLIC_KEY=your_stripe_public_key
+STRIPE_API_KEY=your_stripe_api_key
+STRIPE_IPN_SECRET=your_stripe_ipn_secret
 REDIS_URL=redis://localhost:6379
 NEXT_PUBLIC_API_URL=https://usernamesearch.io
 ```

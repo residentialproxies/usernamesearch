@@ -4,11 +4,10 @@ import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Github, Sparkles, ShieldCheck, Clock3 } from 'lucide-react'
+import { Sparkles, ShieldCheck, Clock3 } from 'lucide-react'
 
 const providers = [
   { id: 'google', name: 'Google', icon: Sparkles },
-  { id: 'github', name: 'GitHub', icon: Github },
 ]
 
 export default function SignupPage() {
@@ -18,7 +17,7 @@ export default function SignupPage() {
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Create your account</CardTitle>
           <CardDescription>
-            One-click sign up with Google or GitHub. No passwords needed.
+            One-click sign up with Google. No passwords needed.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">

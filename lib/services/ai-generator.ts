@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import {
-  getGeminiApiKey,
   API_ENDPOINTS,
   API_CONFIG,
   TIMEOUTS,
@@ -55,7 +54,7 @@ class AIUsernameGenerator {
   private readonly requestTimeout = TIMEOUTS.AI_GENERATION;
 
   constructor() {
-    this.apiKey = getGeminiApiKey();
+    this.apiKey = process.env.GEMINI_API_KEY || '';
   }
 
   /**
@@ -194,6 +193,10 @@ class AIUsernameGenerator {
    * Makes API call to Gemini to generate usernames
    */
   private async callGeminiAPI(prompt: string): Promise<string> {
+    if (!this.apiKey) {
+      throw new Error('GEMINI_API_KEY environment variable is not set')
+    }
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.requestTimeout);
 

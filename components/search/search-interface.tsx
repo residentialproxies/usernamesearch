@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useCallback, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 import { Search, Loader2, Check, X, ExternalLink, AlertCircle, Sparkles, TrendingUp, Filter, Download, History, Copy, Share2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -73,6 +74,7 @@ export default function SearchInterface() {
   const [googleResults, setGoogleResults] = useState<GoogleResultItem[]>([])
   const [googleLoading, setGoogleLoading] = useState(false)
   const [googleError, setGoogleError] = useState<string | null>(null)
+  const { data: session } = useSession()
 
   // Load search history from localStorage
   useEffect(() => {
@@ -166,25 +168,36 @@ export default function SearchInterface() {
     simulateProgressiveLoading()
 
     try {
-      const response = await fetch('https://api.usernamesearch.io/discoverprofile', {
+      const trimmedUsername = username.trim()
+      const isLoggedIn = Boolean(session?.user)
+
+      const response = await fetch(isLoggedIn ? '/api/check' : 'https://api.usernamesearch.io/discoverprofile', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          source: username.trim(),
-          type: 'name',
-          rescan: false
-        }),
+        body: JSON.stringify(
+          isLoggedIn
+            ? { username: trimmedUsername, rescan: false }
+            : { source: trimmedUsername, type: 'name', rescan: false }
+        ),
       })
 
+      const payload = await response.json().catch(() => ({}))
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.error || errorData.message || 'Failed to check username')
+        const message =
+          (payload as { error?: string; message?: string })?.error ||
+          (payload as { error?: string; message?: string })?.message ||
+          'Failed to check username'
+        throw new Error(message)
       }
 
-      const externalData = await response.json()
-      console.log('API Response:', JSON.stringify(externalData, null, 2))
+      if (isLoggedIn) {
+        setResults(payload as ApiResponse)
+        fetchGoogleResults(trimmedUsername)
+        return
+      }
 
       // Map external API response to internal ApiResponse format
       const mappedResults: SearchResult[] = []
@@ -192,6 +205,7 @@ export default function SearchInterface() {
 
       // Handle the external API response format
       // Expected format: { result: [{ source, url, isExist, category, ... }] }
+      const externalData = payload as any
       const apiResults = externalData.result || externalData.resultArr || externalData.results
       if (apiResults && Array.isArray(apiResults)) {
         apiResults.forEach((item: any) => {
@@ -217,7 +231,7 @@ export default function SearchInterface() {
       const totalTaken = mappedResults.filter(r => r.isExist).length
 
       const data: ApiResponse = {
-        username: username.trim(),
+        username: trimmedUsername,
         results: mappedResults,
         categorizedResults: categorizedResults,
         stats: {
@@ -232,14 +246,14 @@ export default function SearchInterface() {
       setResults(data)
 
       // Trigger Google search in background
-      fetchGoogleResults(username.trim())
+      fetchGoogleResults(trimmedUsername)
     } catch (err) {
       console.error('Search error:', err)
       setError(err instanceof Error ? err.message : 'An error occurred while searching')
     } finally {
       setLoading(false)
     }
-  }, [username])
+  }, [username, session, fetchGoogleResults, searchHistory])
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !loading) {

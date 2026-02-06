@@ -83,8 +83,8 @@ curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:g
     ]
   }'
 
-GEMINI_API_KEY 可使用下面3个free的key
-AIzaSyCbinafIhh5cHsoC4vU35Zu0DbOHe-SjVc
+GEMINI_API_KEY 请通过环境变量/Cloudflare secrets 配置（不要写入仓库）
+YOUR_GEMINI_API_KEY_HERE
 
 
 ## /pricing
@@ -92,14 +92,14 @@ AIzaSyCbinafIhh5cHsoC4vU35Zu0DbOHe-SjVc
 
 使用
 API key
-EE4GPYN-SB2MM6W-MP2EEGW-Y5N3ZGG
+YOUR_PAYMENT_PROVIDER_API_KEY
 
 Public key
-c0c51dfc-f71c-4b82-a0c5-006b88e91631
+YOUR_PAYMENT_PROVIDER_PUBLIC_KEY
 
 Set up IPN
 IPN secret key
-/otKp+iC3B51OZib9kkBgdLxrlH+aihs
+YOUR_PAYMENT_PROVIDER_IPN_SECRET
 You will receive payment updates (statuses) to this URL address ？？？
 
 ## frontend agent

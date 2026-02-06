@@ -138,9 +138,10 @@ const platformDetails: Record<string, any> = {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { platform: string } }
+  { params }: { params: Promise<{ platform: string }> }
 ) {
-  const platform = params.platform.toLowerCase()
+  const { platform: platformParam } = await params
+  const platform = platformParam.toLowerCase()
   
   // Check if we have detailed info for this platform
   if (platformDetails[platform]) {

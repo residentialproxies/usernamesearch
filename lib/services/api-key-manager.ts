@@ -1,30 +1,29 @@
 /**
- * API Key Manager
+ * API Key Manager (D1)
  * 管理 API 密钥的创建、验证和使用次数追踪
  */
 
-import crypto from 'crypto'
-import {
-  API_KEY_CONFIG,
-  RATE_LIMITS,
-  CLEANUP_INTERVALS,
-  ERROR_MESSAGES,
-  API_KEY_STATUS,
-} from '@/lib/config'
+import 'server-only'
 
-// 在生产环境中，这些应该存储在数据库中
-// 这里使用内存存储作为示例
-const API_KEYS_STORE = new Map<string, ApiKeyData>()
-const USAGE_STORE = new Map<string, number>()
+import { API_KEY_CONFIG, API_KEY_STATUS, ERROR_MESSAGES } from '@/lib/config'
+import { getD1Database } from '@/lib/server/d1'
 
-interface ApiKeyData {
+export interface ApiKeyData {
   key: string
-  createdAt: Date
+  createdAt: number
   email: string
   credits: number
   usedCredits: number
-  paymentId?: string
+  paymentId?: string | null
   status: 'active' | 'expired' | 'suspended'
+}
+
+function randomHex(bytesLength: number): string {
+  const bytes = new Uint8Array(bytesLength)
+  crypto.getRandomValues(bytes)
+  return Array.from(bytes)
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
 }
 
 /**
@@ -32,7 +31,7 @@ interface ApiKeyData {
  */
 export function generateApiKey(): string {
   const prefix = API_KEY_CONFIG.PREFIX
-  const randomBytes = crypto.randomBytes(API_KEY_CONFIG.RANDOM_BYTES_LENGTH).toString('hex')
+  const randomBytes = randomHex(API_KEY_CONFIG.RANDOM_BYTES_LENGTH)
   return `${prefix}_${randomBytes}`
 }
 
@@ -44,25 +43,23 @@ export async function createApiKey(
   credits: number = API_KEY_CONFIG.DEFAULT_CREDITS,
   paymentId?: string
 ): Promise<string> {
+  const db = await getD1Database()
   const key = generateApiKey()
-  
-  const apiKeyData: ApiKeyData = {
-    key,
-    createdAt: new Date(),
-    email,
-    credits,
-    usedCredits: 0,
-    paymentId,
-    status: API_KEY_STATUS.ACTIVE
+
+  const result = await db
+    .prepare(
+      [
+        'INSERT INTO api_keys (key, owner_email, credits, used_credits, status, payment_id, created_at, updated_at)',
+        'VALUES (?, ?, ?, 0, ?, ?, unixepoch(), unixepoch())',
+      ].join('\n')
+    )
+    .bind(key, email, credits, API_KEY_STATUS.ACTIVE, paymentId ?? null)
+    .run()
+
+  if (!result.success) {
+    throw new Error(result.error || 'Failed to create API key')
   }
-  
-  // 存储 API 密钥数据
-  API_KEYS_STORE.set(key, apiKeyData)
-  USAGE_STORE.set(key, 0)
-  
-  // 在生产环境中，这里应该保存到数据库
-  // await saveToDatabase(apiKeyData)
-  
+
   return key
 }
 
@@ -74,62 +71,82 @@ export async function validateApiKey(apiKey: string): Promise<{
   reason?: string
   data?: ApiKeyData
 }> {
-  // 检查密钥格式
   if (!apiKey || !apiKey.startsWith(`${API_KEY_CONFIG.PREFIX}_`)) {
     return { valid: false, reason: ERROR_MESSAGES.API_KEY_INVALID_FORMAT }
   }
 
-  // 获取密钥数据
-  const keyData = API_KEYS_STORE.get(apiKey)
+  const db = await getD1Database()
 
-  if (!keyData) {
+  const row = await db
+    .prepare(
+      [
+        'SELECT',
+        '  key,',
+        '  owner_email as email,',
+        '  credits,',
+        '  used_credits as usedCredits,',
+        '  payment_id as paymentId,',
+        '  status,',
+        '  created_at as createdAt',
+        'FROM api_keys',
+        'WHERE key = ?',
+        'LIMIT 1',
+      ].join('\n')
+    )
+    .bind(apiKey)
+    .first<ApiKeyData>()
+
+  if (!row) {
     return { valid: false, reason: ERROR_MESSAGES.API_KEY_NOT_FOUND }
   }
 
-  // 检查状态
-  if (keyData.status !== API_KEY_STATUS.ACTIVE) {
-    return { valid: false, reason: ERROR_MESSAGES.API_KEY_SUSPENDED(keyData.status) }
+  if (row.status !== API_KEY_STATUS.ACTIVE) {
+    return { valid: false, reason: ERROR_MESSAGES.API_KEY_SUSPENDED(row.status) }
   }
 
-  // 检查使用次数
-  if (keyData.usedCredits >= keyData.credits) {
+  if (row.usedCredits >= row.credits) {
     return { valid: false, reason: ERROR_MESSAGES.API_KEY_EXHAUSTED }
   }
 
-  return { valid: true, data: keyData }
+  return { valid: true, data: row }
 }
 
 /**
- * 记录 API 使用
+ * 记录 API 使用（原子自增）
  */
 export async function recordApiUsage(apiKey: string): Promise<{
   success: boolean
   remainingCredits?: number
   error?: string
 }> {
-  const validation = await validateApiKey(apiKey)
-  
-  if (!validation.valid) {
-    return { success: false, error: validation.reason }
+  const db = await getD1Database()
+
+  const row = await db
+    .prepare(
+      [
+        'UPDATE api_keys',
+        'SET',
+        '  used_credits = used_credits + 1,',
+        `  status = CASE WHEN used_credits + 1 >= credits THEN '${API_KEY_STATUS.EXPIRED}' ELSE status END,`,
+        '  updated_at = unixepoch()',
+        'WHERE',
+        '  key = ?',
+        `  AND status = '${API_KEY_STATUS.ACTIVE}'`,
+        '  AND used_credits < credits',
+        'RETURNING credits, used_credits as usedCredits',
+      ].join('\n')
+    )
+    .bind(apiKey)
+    .first<{ credits: number; usedCredits: number }>()
+
+  if (!row) {
+    const validation = await validateApiKey(apiKey)
+    return { success: false, error: validation.reason || ERROR_MESSAGES.API_KEY_NOT_FOUND }
   }
-  
-  const keyData = validation.data!
-  
-  // 增加使用次数
-  keyData.usedCredits += 1
-  USAGE_STORE.set(apiKey, keyData.usedCredits)
-  
-  // 检查是否用完
-  if (keyData.usedCredits >= keyData.credits) {
-    keyData.status = API_KEY_STATUS.EXPIRED
-  }
-  
-  // 更新存储
-  API_KEYS_STORE.set(apiKey, keyData)
-  
+
   return {
     success: true,
-    remainingCredits: keyData.credits - keyData.usedCredits
+    remainingCredits: Math.max(0, row.credits - row.usedCredits),
   }
 }
 
@@ -143,107 +160,42 @@ export async function getApiKeyStats(apiKey: string): Promise<{
     totalCredits: number
     usedCredits: number
     remainingCredits: number
-    createdAt: Date
+    createdAt: number
     status: string
   }
 }> {
-  const keyData = API_KEYS_STORE.get(apiKey)
-  
-  if (!keyData) {
-    return { found: false }
-  }
-  
+  const db = await getD1Database()
+
+  const row = await db
+    .prepare(
+      [
+        'SELECT',
+        '  owner_email as email,',
+        '  credits as totalCredits,',
+        '  used_credits as usedCredits,',
+        '  created_at as createdAt,',
+        '  status',
+        'FROM api_keys',
+        'WHERE key = ?',
+        'LIMIT 1',
+      ].join('\n')
+    )
+    .bind(apiKey)
+    .first<{
+      email: string
+      totalCredits: number
+      usedCredits: number
+      createdAt: number
+      status: string
+    }>()
+
+  if (!row) return { found: false }
+
   return {
     found: true,
     stats: {
-      email: keyData.email,
-      totalCredits: keyData.credits,
-      usedCredits: keyData.usedCredits,
-      remainingCredits: keyData.credits - keyData.usedCredits,
-      createdAt: keyData.createdAt,
-      status: keyData.status
-    }
+      ...row,
+      remainingCredits: Math.max(0, row.totalCredits - row.usedCredits),
+    },
   }
-}
-
-/**
- * 免费层级速率限制
- * 使用 IP 地址限制免费用户每天 10 次查询
- */
-const FREE_USAGE_STORE = new Map<string, { count: number; resetAt: Date }>()
-const FREE_DAILY_LIMIT = RATE_LIMITS.FREE_DAILY_LIMIT
-
-export async function checkFreeUsageLimit(ipAddress: string): Promise<{
-  allowed: boolean
-  remaining: number
-  resetAt?: Date
-}> {
-  const now = new Date()
-  const usage = FREE_USAGE_STORE.get(ipAddress)
-  
-  // 如果没有记录或已过期，创建新记录
-  if (!usage || usage.resetAt < now) {
-    const resetAt = new Date(now)
-    resetAt.setDate(resetAt.getDate() + 1) // 24小时后重置
-    resetAt.setHours(0, 0, 0, 0) // 设置为第二天凌晨
-    
-    FREE_USAGE_STORE.set(ipAddress, {
-      count: 0,
-      resetAt
-    })
-    
-    return { allowed: true, remaining: RATE_LIMITS.FREE_DAILY_LIMIT }
-  }
-
-  // 检查是否超过限制
-  if (usage.count >= RATE_LIMITS.FREE_DAILY_LIMIT) {
-    return {
-      allowed: false,
-      remaining: 0,
-      resetAt: usage.resetAt
-    }
-  }
-
-  return {
-    allowed: true,
-    remaining: RATE_LIMITS.FREE_DAILY_LIMIT - usage.count,
-    resetAt: usage.resetAt
-  }
-}
-
-/**
- * 记录免费使用
- */
-export async function recordFreeUsage(ipAddress: string): Promise<void> {
-  const usage = FREE_USAGE_STORE.get(ipAddress)
-  
-  if (usage) {
-    usage.count += 1
-    FREE_USAGE_STORE.set(ipAddress, usage)
-  }
-}
-
-/**
- * 清理过期的免费使用记录（应该定期运行）
- */
-export function cleanupExpiredFreeUsage(): void {
-  const now = new Date()
-  
-  FREE_USAGE_STORE.forEach((usage, ip) => {
-    if (usage.resetAt < now) {
-      FREE_USAGE_STORE.delete(ip)
-    }
-  })
-}
-
-// 每小时清理一次过期记录
-setInterval(cleanupExpiredFreeUsage, CLEANUP_INTERVALS.FREE_USAGE_CLEANUP)
-
-/**
- * 示例：创建测试 API 密钥
- */
-export function createTestApiKey(): string {
-  const testKey = createApiKey('test@example.com', API_KEY_CONFIG.TEST_CREDITS, 'test_payment')
-  console.log('Test API key created:', testKey)
-  return testKey as unknown as string
 }

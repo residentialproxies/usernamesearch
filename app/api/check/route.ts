@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import {
-  checkUsernameViaAPI,
-  getAllSupportedSites,
-  getTotalSitesCount,
-  getSitesByCategory,
-  getAllCategories
-} from '@/lib/services/whatsmynameapp-api'
+import { getServerSession } from 'next-auth'
+
+import { authOptions } from '@/lib/auth/auth-options'
+import { getD1Database } from '@/lib/server/d1'
+import { getUtcYmd } from '@/lib/server/time'
+import { consumeDailyQuota } from '@/lib/server/usage'
+import { getUserByEmail, getUserById, upsertUser } from '@/lib/server/users'
+import { checkUsernameViaAPI, getTotalSitesCount } from '@/lib/services/whatsmynameapp-api'
 import { sortResultsByRanking } from '@/lib/services/similarweb-rankings'
+
+const FREE_DAILY_LIMIT = 10
+export const dynamic = 'force-dynamic'
 
 /**
  * POST /api/check
@@ -15,6 +19,36 @@ import { sortResultsByRanking } from '@/lib/services/similarweb-rankings'
  */
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+    }
+
+    const db = await getD1Database()
+
+    const userId = session.user.id
+    const email = session.user.email
+
+    if (!userId && !email) {
+      return NextResponse.json({ error: 'User identity missing in session' }, { status: 500 })
+    }
+
+    const existing =
+      (userId ? await getUserById(db, userId) : null) ||
+      (email ? await getUserByEmail(db, email) : null)
+
+    const ensuredUser =
+      existing ||
+      (email
+        ? await upsertUser(db, {
+            id: userId || `google:${email}`,
+            email,
+            name: session.user.name ?? null,
+            pictureUrl: session.user.image ?? null,
+          })
+        : null)
+
+    const plan = (ensuredUser?.plan || session.user.plan || 'free') as 'free' | 'pro' | 'enterprise'
 
     const body = await request.json()
     const { username, rescan = false } = body
@@ -32,6 +66,23 @@ export async function POST(request: NextRequest) {
         { error: 'Username must be between 2 and 50 characters' },
         { status: 400 }
       )
+    }
+
+    if (plan === 'free') {
+      const ymd = getUtcYmd()
+      const quota = await consumeDailyQuota(db, ensuredUser?.id ?? userId ?? 'unknown', ymd, FREE_DAILY_LIMIT)
+      if (!quota.allowed) {
+        return NextResponse.json(
+          {
+            error: 'Daily limit reached',
+            ymd,
+            limit: FREE_DAILY_LIMIT,
+            remaining: 0,
+            resetAt: quota.resetAt,
+          },
+          { status: 429 }
+        )
+      }
     }
     
     // 调用 WhatsMyName API（支持520+平台）
@@ -81,58 +132,4 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/**
- * GET /api/check
- * 获取支持的站点信息
- */
-export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url)
-    const info = searchParams.get('info')
-    
-    if (info === 'sites') {
-      // 返回所有支持的站点列表
-      const sites = getAllSupportedSites()
-      return NextResponse.json({
-        sites,
-        total: sites.length
-      })
-    }
-    
-    if (info === 'categories') {
-      // 返回按分类分组的站点
-      const categories = getSitesByCategory()
-      const categoryStats = Object.entries(categories).map(([category, sites]) => ({
-        category,
-        count: sites.length,
-        sites: sites.slice(0, 10) // 每个分类只返回前10个示例
-      }))
-      
-      return NextResponse.json({
-        categories: categoryStats,
-        totalCategories: categoryStats.length,
-        totalSites: getTotalSitesCount()
-      })
-    }
-    
-    // 默认返回统计信息
-    return NextResponse.json({
-      message: 'Username Search API - Powered by WhatsMyName.io',
-      totalSupportedSites: getTotalSitesCount(),
-      categories: getAllCategories(),
-      endpoints: {
-        check: 'POST /api/check',
-        sites: 'GET /api/check?info=sites',
-        categories: 'GET /api/check?info=categories',
-        generate: 'POST /api/generate'
-      }
-    })
-    
-  } catch (error) {
-    console.error('API info error:', error)
-    return NextResponse.json(
-      { error: 'Failed to retrieve information' },
-      { status: 500 }
-    )
-  }
-}
+export const runtime = 'nodejs'

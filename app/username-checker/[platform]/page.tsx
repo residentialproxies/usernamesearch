@@ -150,9 +150,10 @@ const platformData: Record<string, any> = {
 }
 
 export async function generateMetadata(
-  { params }: { params: { platform: string } }
+  { params }: { params: Promise<{ platform: string }> }
 ): Promise<Metadata> {
-  const platform = params.platform.toLowerCase()
+  const { platform: platformParam } = await params
+  const platform = platformParam.toLowerCase()
   const data = platformData[platform]
   
   if (!data) {
@@ -174,8 +175,9 @@ export async function generateMetadata(
   }
 }
 
-export default function PlatformPage({ params }: { params: { platform: string } }) {
-  const platform = params.platform.toLowerCase()
+export default async function PlatformPage({ params }: { params: Promise<{ platform: string }> }) {
+  const { platform: platformParam } = await params
+  const platform = platformParam.toLowerCase()
   const data = platformData[platform]
   
   if (!data) {

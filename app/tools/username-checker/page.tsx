@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
@@ -63,6 +64,7 @@ export default function UsernameCheckerPage() {
   const [progressiveResults, setProgressiveResults] = useState<ProgressiveResult[]>([])
   const [searchHistory, setSearchHistory] = useState<string[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
+  const { data: session } = useSession()
 
   // Load search history from localStorage
   useEffect(() => {
@@ -132,22 +134,34 @@ export default function UsernameCheckerPage() {
     simulateProgressiveLoading()
     
     try {
-      const response = await fetch('https://api.usernamesearch.io/discoverprofile', {
+      const isLoggedIn = Boolean(session?.user)
+      const response = await fetch(isLoggedIn ? '/api/check' : 'https://api.usernamesearch.io/discoverprofile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          source: trimmedUsername,
-          type: 'name',
-          rescan: false
-        }),
+        body: JSON.stringify(
+          isLoggedIn
+            ? { username: trimmedUsername, rescan: false }
+            : { source: trimmedUsername, type: 'name', rescan: false }
+        ),
       })
 
+      const payload = await response.json().catch(() => ({}))
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.error || errorData.message || 'Failed to check username')
+        const message =
+          (payload as { error?: string; message?: string })?.error ||
+          (payload as { error?: string; message?: string })?.message ||
+          'Failed to check username'
+        throw new Error(message)
       }
 
-      const externalData = await response.json()
+      if (isLoggedIn) {
+        setResults(payload as ApiResponse)
+        setSearchProgress(100)
+        return
+      }
+
+      const externalData = payload as any
 
       // Map external API response to internal ApiResponse format
       const mappedResults: SearchResult[] = []
@@ -199,7 +213,7 @@ export default function UsernameCheckerPage() {
     } finally {
       setLoading(false)
     }
-  }, [username, searchHistory])
+  }, [username, searchHistory, session])
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !loading) {

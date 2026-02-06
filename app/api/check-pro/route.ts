@@ -6,6 +6,8 @@ import {
 import { sortResultsByRanking } from '@/lib/services/similarweb-rankings'
 import { validateApiKey, recordApiUsage } from '@/lib/services/api-key-manager'
 
+export const dynamic = 'force-dynamic'
+
 /**
  * POST /api/check-pro
  * Pro 版本的用户名检查 API（需要 API 密钥）
@@ -172,7 +174,7 @@ export async function GET(request: NextRequest) {
         remaining: keyData.credits - keyData.usedCredits
       },
       status: keyData.status,
-      createdAt: keyData.createdAt,
+      createdAt: new Date(keyData.createdAt * 1000).toISOString(),
       email: keyData.email.replace(/(.{2})(.*)(@.*)/, '$1***$3'), // 隐藏部分邮箱
       endpoints: {
         check: 'POST /api/check-pro',

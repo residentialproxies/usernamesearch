@@ -49,9 +49,9 @@ export async function POST(request: NextRequest) {
         secret: secretKey,
         response: token,
         // Optional: include user's IP
-        remoteip: request.headers.get('x-forwarded-for') || 
-                  request.headers.get('x-real-ip') || 
-                  request.ip || 
+        remoteip: request.headers.get('x-forwarded-for')?.split(',')[0] ||
+                  request.headers.get('x-real-ip') ||
+                  request.headers.get('cf-connecting-ip') ||
                   '127.0.0.1'
       }),
     })

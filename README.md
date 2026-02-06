@@ -20,8 +20,8 @@ A comprehensive username availability checker that searches across 400+ social m
 - **Styling**: Tailwind CSS + shadcn/ui
 - **API**: Next.js API Routes
 - **AI**: Google Gemini API
-- **Payment**: Stripe
-- **Deployment**: Vercel
+- **Payment**: NowPayments (optional)
+- **Deployment**: Cloudflare Workers (OpenNext) + D1
 
 ## 📦 Installation
 
@@ -48,16 +48,22 @@ npm run dev
 Create a `.env.local` file with:
 
 ```env
+# NextAuth
+NEXTAUTH_SECRET=your_nextauth_secret
+
+# Google OAuth
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+# WhatsMyNameApp API key (required for logged-in checks)
+WHATSMYNAME_API_KEY=your_whatsmyname_api_key
+
 # Gemini AI API Key (for username generation)
 GEMINI_API_KEY=your_gemini_api_key
 
-# Stripe Payment (optional for development)
-STRIPE_PUBLIC_KEY=your_stripe_public_key
-STRIPE_API_KEY=your_stripe_api_key
-STRIPE_IPN_SECRET=your_stripe_ipn_secret
-
-# Redis Cache (optional)
-REDIS_URL=redis://localhost:6379
+# NowPayments (optional; required only if you enable Pro purchases)
+NOWPAYMENTS_API_KEY=your_nowpayments_api_key
+NOWPAYMENTS_IPN_SECRET=your_nowpayments_ipn_secret
 ```
 
 ## 📁 Project Structure
@@ -127,22 +133,20 @@ npm run lint
 
 ## 🚢 Deployment
 
-### Deploy to Vercel
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/usernamesearch.io)
-
-1. Click the deploy button above
-2. Configure environment variables
-3. Deploy!
-
-### Manual Deployment
+### Cloudflare Workers (OpenNext) + D1
 
 ```bash
-# Install Vercel CLI
-npm i -g vercel
+# 1) Create D1 database (once)
+wrangler d1 create usernamesearch-db
 
-# Deploy to Vercel
-vercel --prod
+# 2) Apply migrations (once)
+wrangler d1 migrations apply usernamesearch-db --remote
+
+# 3) Build OpenNext worker
+npm run build:cf
+
+# 4) Deploy (requires wrangler auth + wrangler.jsonc configured)
+npm run deploy
 ```
 
 ## 🤝 Contributing
@@ -163,7 +167,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [WhatsMyName Project](https://github.com/WebBreacher/WhatsMyName) for platform data
 - [shadcn/ui](https://ui.shadcn.com/) for UI components
-- [Vercel](https://vercel.com) for hosting
+- [Cloudflare Workers](https://developers.cloudflare.com/workers/) for hosting
 
 ## 📧 Contact
 

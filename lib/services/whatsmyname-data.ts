@@ -4,8 +4,7 @@
  */
 
 import { getRankingForDomain, getDetailedRanking } from './similarweb-rankings'
-import fs from 'fs'
-import path from 'path'
+import rawWhatsMyNameData from '@/data/whatsmyname-data.json'
 
 export interface WhatsMyNameSite {
   name: string
@@ -37,9 +36,7 @@ export interface ProcessedSite {
  */
 export function loadWhatsMyNameData(): Record<string, WhatsMyNameSite> {
   try {
-    const dataPath = path.join(process.cwd(), 'data', 'whatsmyname-data.json')
-    const rawData = fs.readFileSync(dataPath, 'utf-8')
-    return JSON.parse(rawData)
+    return rawWhatsMyNameData as unknown as Record<string, WhatsMyNameSite>
   } catch (error) {
     console.error('Error loading WhatsMyName data:', error)
     // Return fallback data if file not found - matches complete data format

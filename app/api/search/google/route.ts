@@ -23,30 +23,10 @@ export async function GET(request: NextRequest) {
   const num = clampGoogleNum(Number(numParam ?? '5'), 5)
 
   // Keys and CX
-  const envKeys = [
+  const keys = [
     ...parseGoogleApiKeys(process.env.GOOGLE_CUSTOM_SEARCH_API_KEYS),
     ...parseGoogleApiKeys(process.env.GOOGLE_CUSTOM_SEARCH_API_KEY),
   ]
-
-  const fallbackKeys = parseGoogleApiKeys(
-    [
-      process.env.GOOGLE_CUSTOM_SEARCH_API_KEYS,
-      // user-supplied defaults for convenience; override via env in prod
-      'AIzaSyDXz-Uaot1KB_gQdODxh4uGtUvsGCsCF9A',
-      'AIzaSyA8jg36o8xZFSE3Dqm1T6rOFkNAir-ZoI8',
-      'AIzaSyAeXNHDNm_EX50mjr_ATGzbGti5mgocytI',
-      'AIzaSyBiXmz1fHdGhvmOJhawr_UBwo5Lz4BJ5_g',
-      'AIzaSyCiWND74Uoo8I1XGC71u7qE2tFwd0ak6gE',
-      'AIzaSyDfMuVFquXLfAFP70O_6se164tcaz1ljh0',
-      'AIzaSyDuCZDzcs9YWJ6p2vrD12Lj_8qeuJ1fEGE',
-      'AIzaSyAMwM1tt316f0lrfJscWnRLmRgW5aW6RgI',
-      'AIzaSyAVoVN5ZQa_HHTuwv4FO0QeApf8aqg4Kuw',
-    ]
-      .filter(Boolean)
-      .join(',')
-  )
-
-  const keys = envKeys.length > 0 ? envKeys : fallbackKeys
   const cx = process.env.GOOGLE_CUSTOM_SEARCH_CX || '759c3a793704d498b'
 
   if (keys.length === 0 || !cx) {

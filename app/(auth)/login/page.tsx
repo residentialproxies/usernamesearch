@@ -4,11 +4,10 @@ import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Github, Loader2, LogIn, Sparkles } from 'lucide-react'
+import { Loader2, LogIn, Sparkles } from 'lucide-react'
 
 const providers = [
   { id: 'google', name: 'Google', icon: Sparkles },
-  { id: 'github', name: 'GitHub', icon: Github },
 ]
 
 export default function LoginPage() {
@@ -23,7 +22,7 @@ export default function LoginPage() {
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
           <CardDescription>
-            Sign in with Google or GitHub to continue
+            Sign in with Google to continue
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">

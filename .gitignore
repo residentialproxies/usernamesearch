@@ -48,10 +48,15 @@ dump.rdb
 # Cloudflare
 wrangler.toml
 .dev.vars
+.open-next/
 
 # Deployment
 .vercel
 .env*.local
+
+# Claude
+CLAUDE.md
+.claude/
 
 # OS
 Thumbs.db
