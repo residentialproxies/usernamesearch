@@ -25,6 +25,15 @@ export const metadata: Metadata = {
   title: 'Frequently Asked Questions - UsernameSearch.io',
   description: 'Find answers to common questions about UsernameSearch.io, username checking, API access, pricing, and more.',
   keywords: 'username search faq, username checker questions, username availability help',
+  alternates: {
+    canonical: 'https://usernamesearch.io/faq',
+  },
+  openGraph: {
+    title: 'FAQ - Username Search',
+    description: 'Find answers to common questions about username checking, API access, and pricing.',
+    url: 'https://usernamesearch.io/faq',
+    type: 'website',
+  },
 }
 
 const faqCategories = [
@@ -188,9 +197,32 @@ const faqCategories = [
   }
 ]
 
+// Generate FAQ structured data for SEO
+const generateFaqSchema = () => {
+  const allQuestions = faqCategories.flatMap(cat => cat.questions)
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": allQuestions.map(q => ({
+      "@type": "Question",
+      "name": q.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": q.answer
+      }
+    }))
+  }
+}
+
 export default function FAQPage() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(generateFaqSchema())
+        }}
+      />
       {/* Header */}
       <div className="text-center mb-12">
         <div className="flex justify-center mb-4">

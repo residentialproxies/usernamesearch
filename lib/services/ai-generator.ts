@@ -219,10 +219,11 @@ class AIUsernameGenerator {
         })),
       };
 
-      const response = await fetch(`${API_ENDPOINTS.GEMINI}?key=${this.apiKey}`, {
+      const response = await fetch(API_ENDPOINTS.GEMINI, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-goog-api-key': this.apiKey,
         },
         body: JSON.stringify(requestBody),
         signal: controller.signal,

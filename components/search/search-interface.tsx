@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useMemo } from 'react'
 import { useSession } from 'next-auth/react'
 import { Search, Loader2, Check, X, ExternalLink, AlertCircle, Sparkles, TrendingUp, Filter, Download, History, Copy, Share2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -262,20 +262,20 @@ export default function SearchInterface() {
   }
 
 
-  const getFilteredResults = () => {
+  const filteredResults = useMemo(() => {
     if (!results) return []
-    
+
     if (selectedCategory === 'all') {
       return results.results
     }
-    
-    return results.categorizedResults[selectedCategory] || []
-  }
 
-  const getCategories = () => {
+    return results.categorizedResults[selectedCategory] || []
+  }, [results, selectedCategory])
+
+  const categories = useMemo(() => {
     if (!results?.categorizedResults) return []
     return Object.keys(results.categorizedResults).sort()
-  }
+  }, [results?.categorizedResults])
 
   return (
     <div className="w-full max-w-6xl mx-auto space-y-6">
@@ -538,7 +538,7 @@ export default function SearchInterface() {
           </div>
 
           {/* Category Filter */}
-          {getCategories().length > 0 && (
+          {categories.length > 0 && (
             <div className="flex flex-wrap gap-2">
               <Button
                 variant={selectedCategory === 'all' ? 'default' : 'outline'}
@@ -547,7 +547,7 @@ export default function SearchInterface() {
               >
                 All ({results.results.length})
               </Button>
-              {getCategories().map(category => (
+              {categories.map(category => (
                 <Button
                   key={category}
                   variant={selectedCategory === category ? 'default' : 'outline'}
@@ -581,7 +581,7 @@ export default function SearchInterface() {
                 "space-y-2"
               }>
                 <AnimatePresence>
-                  {getFilteredResults().map((result, index) => (
+                  {filteredResults.map((result, index) => (
                     <motion.div
                       key={index}
                       initial={{ opacity: 0, y: 20 }}
@@ -672,7 +672,7 @@ export default function SearchInterface() {
                 "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" : 
                 "space-y-2"
               }>
-                {getFilteredResults()
+                {filteredResults
                   .filter(r => !r.isExist)
                   .map((result, index) => (
                     <Card key={index} className="p-3 border-green-200 dark:border-green-900">
@@ -730,7 +730,7 @@ export default function SearchInterface() {
                 "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" : 
                 "space-y-2"
               }>
-                {getFilteredResults()
+                {filteredResults
                   .filter(r => r.isExist)
                   .map((result, index) => (
                     <Card key={index} className="p-4 border-red-200 dark:border-red-900">
@@ -787,7 +787,7 @@ export default function SearchInterface() {
                 "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" : 
                 "space-y-2"
               }>
-                {getFilteredResults()
+                {filteredResults
                   .filter(r => PRIORITY_PLATFORMS.some(p => 
                     r.source.toLowerCase().includes(p)
                   ))
@@ -909,7 +909,7 @@ export default function SearchInterface() {
           </div>
 
           {/* No Results Message */}
-          {getFilteredResults().length === 0 && (
+          {filteredResults.length === 0 && (
             <div className="text-center py-8">
               <p className="text-gray-500 dark:text-gray-400">
                 No results found for the selected category.

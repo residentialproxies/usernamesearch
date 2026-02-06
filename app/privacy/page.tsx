@@ -1,3 +1,19 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy - Username Search',
+  description: 'Learn how Username Search collects, uses, and protects your personal information. Our privacy policy explains our data practices and your rights.',
+  alternates: {
+    canonical: 'https://usernamesearch.io/privacy',
+  },
+  openGraph: {
+    title: 'Privacy Policy - Username Search',
+    description: 'Learn how Username Search collects, uses, and protects your personal information.',
+    url: 'https://usernamesearch.io/privacy',
+    type: 'website',
+  },
+}
+
 export default function PrivacyPage() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">

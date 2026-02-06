@@ -19,6 +19,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
+      url: `${baseUrl}/faq`,
+      lastModified,
+      changeFrequency: 'monthly' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/supported-sites`,
+      lastModified,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    },
+    {
       url: `${baseUrl}/resources/supported-sites`,
       lastModified,
       changeFrequency: 'weekly' as const,
@@ -55,13 +67,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/tools/whatsmyname`,
+      lastModified,
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/docs`,
+      lastModified,
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    },
+    {
       url: `${baseUrl}/api-portal`,
       lastModified,
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     },
     {
-      url: `${baseUrl}/api/docs`,
+      url: `${baseUrl}/about`,
       lastModified,
       changeFrequency: 'monthly' as const,
       priority: 0.6,
@@ -90,8 +114,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const guides = [
     'perfect-username',
     'brand-consistency',
-    'top-platforms',
-    'ai-username-guide'
+    'best-practices-username',
+    'how-to-check-username-availability',
+    'social-media-username-strategy',
+    'username-recovery',
   ]
 
   const guidePages = guides.map(slug => ({

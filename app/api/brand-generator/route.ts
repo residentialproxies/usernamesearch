@@ -3,13 +3,15 @@ import { API_ENDPOINTS, API_CONFIG, getGeminiApiKey } from '@/lib/config'
 
 async function callGeminiAPI(prompt: string) {
   const apiKey = getGeminiApiKey()
-  const apiUrl = `${API_ENDPOINTS.GEMINI}?key=${apiKey}`
+  // Use header-based authentication instead of URL parameter for security
+  const apiUrl = API_ENDPOINTS.GEMINI
 
   try {
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'x-goog-api-key': apiKey,
       },
       body: JSON.stringify({
         contents: [{

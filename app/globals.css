@@ -123,3 +123,35 @@
 .transition-smooth {
   @apply transition-all duration-200 ease-in-out;
 }
+
+/* Optimized slide-in animation for result cards */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.2s ease-out forwards;
+}
+
+/* Staggered animation delay utility classes */
+.stagger-1 { animation-delay: 0.02s; }
+.stagger-2 { animation-delay: 0.04s; }
+.stagger-3 { animation-delay: 0.06s; }
+.stagger-4 { animation-delay: 0.08s; }
+.stagger-5 { animation-delay: 0.1s; }
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-slide-in,
+  .animate-pulse-subtle {
+    animation: none;
+  }
+}

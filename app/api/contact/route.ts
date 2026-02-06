@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getD1Database } from '@/lib/server/d1'
+import { checkRateLimit, getClientIP, RATE_LIMITS } from '@/lib/server/rate-limit'
 
 interface ContactFormData {
   name: string
@@ -8,8 +10,47 @@ interface ContactFormData {
   type: 'general' | 'support' | 'sales' | 'bug'
 }
 
+// Input sanitization
+function sanitizeInput(input: string): string {
+  return input
+    .replace(/[<>]/g, '') // Remove angle brackets (XSS prevention)
+    .replace(/[\r\n]+/g, ' ') // Prevent header injection
+    .trim()
+}
+
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting
+    let db
+    try {
+      db = await getD1Database()
+    } catch {
+      // DB not available, skip rate limiting
+    }
+    const clientIP = getClientIP(request)
+
+    if (db) {
+      const rateLimit = await checkRateLimit(
+        db,
+        `contact:${clientIP}`,
+        RATE_LIMITS.CONTACT.limit,
+        RATE_LIMITS.CONTACT.windowMs
+      )
+
+      if (!rateLimit.allowed) {
+        return NextResponse.json(
+          { error: 'Too many requests. Please try again later.' },
+          {
+            status: 429,
+            headers: {
+              'Retry-After': String(Math.ceil((rateLimit.resetAt - Date.now()) / 1000)),
+              'X-RateLimit-Remaining': '0',
+            },
+          }
+        )
+      }
+    }
+
     const body: ContactFormData = await request.json()
     const { name, email, subject, message, type = 'general' } = body
 
@@ -21,13 +62,30 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Validate field lengths
+    if (name.length > 100 || subject.length > 200 || message.length > 5000) {
+      return NextResponse.json(
+        { error: 'Field length exceeds maximum allowed' },
+        { status: 400 }
+      )
+    }
+
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(email) || email.length > 255) {
       return NextResponse.json(
         { error: 'Invalid email address' },
         { status: 400 }
       )
+    }
+
+    // Sanitize inputs
+    const sanitizedData = {
+      name: sanitizeInput(name),
+      email: email.toLowerCase().trim(),
+      subject: sanitizeInput(subject),
+      message: sanitizeInput(message),
+      type,
     }
 
     // In production, you would:
@@ -38,11 +96,7 @@ export async function POST(request: NextRequest) {
 
     // For now, we'll log and return success
     console.log('Contact form submission:', {
-      name,
-      email,
-      subject,
-      type,
-      message,
+      ...sanitizedData,
       timestamp: new Date().toISOString()
     })
 

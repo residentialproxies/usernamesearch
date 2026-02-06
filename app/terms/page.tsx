@@ -1,3 +1,19 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Terms of Service - Username Search',
+  description: 'Read the Terms of Service for Username Search. Understand your rights and responsibilities when using our username availability checking service.',
+  alternates: {
+    canonical: 'https://usernamesearch.io/terms',
+  },
+  openGraph: {
+    title: 'Terms of Service - Username Search',
+    description: 'Read the Terms of Service for Username Search.',
+    url: 'https://usernamesearch.io/terms',
+    type: 'website',
+  },
+}
+
 export default function TermsPage() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">

@@ -7,7 +7,12 @@ import './globals.css'
 import Header from '@/components/layout/header'
 import Footer from '@/components/layout/footer'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  preload: true,
+  variable: '--font-inter',
+})
 
 export const metadata: Metadata = {
   title: 'Username Search - Check Username Availability Across Platforms',

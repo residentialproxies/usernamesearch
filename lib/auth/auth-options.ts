@@ -23,6 +23,8 @@ export function createAuthOptions({ db }: { db?: D1Database } = {}): NextAuthOpt
 
     session: {
       strategy: 'jwt',
+      maxAge: 30 * 24 * 60 * 60, // 30 days
+      updateAge: 24 * 60 * 60, // 24 hours - refresh session token daily
     },
 
     pages: {

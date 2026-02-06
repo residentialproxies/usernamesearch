@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
       categorizedResults[category].push(result)
     }
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       username,
       results: sortedResults,
       categorizedResults,
@@ -117,6 +117,12 @@ export async function POST(request: NextRequest) {
       timestamp: apiResponse.createdAt,
       apiError: apiResponse.error || null,
     })
+
+    // Add caching headers for repeated searches (5 minutes)
+    response.headers.set('Cache-Control', 'private, max-age=300')
+    response.headers.set('Vary', 'Authorization')
+
+    return response
     
   } catch (error) {
     console.error('Username check error:', error)
